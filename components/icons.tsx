@@ -45,6 +45,12 @@ export function Icon({
           <path d="M12 8v4l3 2" />
         </svg>
       );
+    case "menu":
+      return (
+        <svg {...shared}>
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      );
     case "cart":
       return (
         <svg {...shared}>
@@ -58,6 +64,40 @@ export function Icon({
         <svg {...shared}>
           <circle cx="12" cy="8" r="3" />
           <path d="M5 19a7 7 0 0 1 14 0" />
+        </svg>
+      );
+    case "star":
+      return (
+        <svg {...shared}>
+          <path d="m12 4 2.3 4.8 5.3.8-3.8 3.7.9 5.3L12 16l-4.7 2.6.9-5.3-3.8-3.7 5.3-.8L12 4Z" />
+        </svg>
+      );
+    case "truck":
+      return (
+        <svg {...shared}>
+          <path d="M3 7h10v8H3z" />
+          <path d="M13 10h4l2 2.5V15h-6" />
+          <circle cx="7" cy="17" r="1.5" />
+          <circle cx="17" cy="17" r="1.5" />
+        </svg>
+      );
+    case "tag":
+      return (
+        <svg {...shared}>
+          <path d="M20 10 11 19l-7-7V4h8l8 6Z" />
+          <circle cx="8.5" cy="8.5" r="1" />
+        </svg>
+      );
+    case "phone":
+      return (
+        <svg {...shared}>
+          <path d="M7 5h3l1 4-1.8 1.8a14.5 14.5 0 0 0 4 4L15 13l4 1v3c0 1.1-.9 2-2 2C10.9 19 5 13.1 5 6.9 5 5.9 5.9 5 7 5Z" />
+        </svg>
+      );
+    case "chevron":
+      return (
+        <svg {...shared}>
+          <path d="m9 6 6 6-6 6" />
         </svg>
       );
     case "shield":

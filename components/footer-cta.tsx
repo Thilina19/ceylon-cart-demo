@@ -7,33 +7,35 @@ type FooterCtaProps = {
 
 export function FooterCta({ registeredUser }: FooterCtaProps) {
   return (
-    <footer className="rounded-[34px] border border-[var(--line)] bg-[linear-gradient(135deg,#19342c,#0f6354)] p-6 text-white shadow-[0_24px_48px_rgba(25,52,44,0.18)]">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <footer className="rounded-2xl bg-[#1f252f] px-5 py-6 text-white">
+      <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-            Product direction
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58">
+            Next production steps
           </p>
-          <h2 className="mt-2 font-[var(--font-display)] text-4xl font-semibold">
-            Ready for real integrations next
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight">
+            This is now much closer to a Noon-style grocery shell
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-white/76">
-            The demo currently uses local API logic for OTP and zone updates, which makes it ideal
-            for UI prototyping. The next production step would be connecting it to an SMS gateway,
-            persistent database storage, payments, and a real catalog backend.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-white/72">
+            The remaining gap is mostly content scale: real product images, more promotion modules,
+            richer category pages, checkout, and proper SMS plus database integrations.
           </p>
         </div>
 
-        <div className="rounded-[28px] bg-white/10 px-5 py-4 text-sm text-white/80">
+        <div className="rounded-2xl bg-white/8 p-4 text-sm text-white/80">
           {registeredUser ? (
-            <div>
-              <p className="font-semibold text-white">Signed in as {registeredUser.name}</p>
+            <>
+              <p className="font-semibold text-white">Signed in customer</p>
+              <p className="mt-2">{registeredUser.name}</p>
               <p className="mt-1">{maskPhone(registeredUser.phone)}</p>
-            </div>
+            </>
           ) : (
-            <div>
-              <p className="font-semibold text-white">Guest mode active</p>
-              <p className="mt-1">Open the OTP modal to test the mobile registration flow.</p>
-            </div>
+            <>
+              <p className="font-semibold text-white">Guest mode</p>
+              <p className="mt-2">
+                Open the mobile OTP panel to test the registration flow and saved-session behavior.
+              </p>
+            </>
           )}
         </div>
       </div>

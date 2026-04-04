@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --page: #f6f1e7;
-  --surface: #fffdf8;
-  --surface-strong: #fff7ea;
-  --ink: #19342c;
-  --muted: #5d7168;
-  --line: rgba(25, 52, 44, 0.12);
-  --brand: #0f8c76;
-  --brand-deep: #0f6354;
-  --accent: #f4764d;
-  --accent-soft: #ffd6b9;
-  --gold: #f4bf57;
-  --berry: #a84561;
-  --font-sans: "Candara", "Trebuchet MS", "Segoe UI", sans-serif;
-  --font-display: "Cambria", "Palatino Linotype", "Book Antiqua", serif;
+  --page: #f4f5f8;
+  --surface: #ffffff;
+  --surface-strong: #fffaf0;
+  --ink: #1f252f;
+  --muted: #667085;
+  --line: #e6e8ee;
+  --brand: #ffc629;
+  --brand-deep: #ffb800;
+  --accent: #2d6cdf;
+  --accent-soft: #e8f1ff;
+  --success: #11845b;
+  --danger: #dd3f57;
+  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-display: "Segoe UI", "Trebuchet MS", sans-serif;
 }
 
 @theme inline {
@@ -35,9 +35,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(244, 191, 87, 0.28), transparent 24%),
-    radial-gradient(circle at top right, rgba(15, 140, 118, 0.14), transparent 22%),
-    linear-gradient(180deg, #fbf6ed 0%, #f3ecdf 44%, #efe7db 100%);
+    linear-gradient(180deg, rgba(255, 198, 41, 0.09), transparent 120px),
+    #f4f5f8;
   color: var(--ink);
   font-family: var(--font-sans);
 }
@@ -50,6 +49,10 @@ a {
 button,
 input {
   font: inherit;
+}
+
+button {
+  cursor: pointer;
 }
 
 ::selection {

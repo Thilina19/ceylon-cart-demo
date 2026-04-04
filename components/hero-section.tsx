@@ -1,10 +1,9 @@
-import type { Category, DeliveryZone } from "@/lib/store-data";
+import type { DeliveryZone } from "@/lib/store-data";
 import {
   aisleHighlights,
   categories,
   highlightPills,
   promoCards,
-  serviceMoments,
 } from "@/lib/store-data";
 import { Icon, LogoMark } from "@/components/icons";
 
@@ -35,6 +34,14 @@ type HeroSectionProps = {
   onSampleZoneCheck: (zone: DeliveryZone) => void;
 };
 
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-LK", {
+    style: "currency",
+    currency: "LKR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export function HeroSection({
   activeCategory,
   cartCount,
@@ -52,327 +59,387 @@ export function HeroSection({
   onQueryChange,
   onSampleZoneCheck,
 }: HeroSectionProps) {
-  const formattedCartTotal = new Intl.NumberFormat("en-LK", {
-    style: "currency",
-    currency: "LKR",
-    maximumFractionDigits: 0,
-  }).format(cartTotal);
+  const liveZones = zones.filter((zone) => zone.active).slice(0, 4);
 
   return (
     <>
-      <div className="border-b border-black/5 bg-[linear-gradient(90deg,#19342c,#0f6354)] px-4 py-3 text-sm text-white">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="flex items-center gap-2 font-medium tracking-[0.14em] uppercase text-white/75">
-            <Icon name="clock" className="h-4 w-4" />
-            Sri Lanka grocery delivery concept
-          </p>
-          <div className="flex flex-wrap items-center gap-3 text-white/90">
-            <span>60-minute delivery in selected zones</span>
-            <span className="hidden h-1 w-1 rounded-full bg-white/60 sm:block" />
-            <span>Backend-controlled radius coverage</span>
-            <span className="hidden h-1 w-1 rounded-full bg-white/60 sm:block" />
-            <span>Mobile OTP registration</span>
+      <div className="bg-[var(--brand)] px-3 py-2 text-xs font-semibold text-[var(--ink)]">
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Icon name="truck" className="h-4 w-4" />
+            <span>Supermarket-style delivery for Sri Lanka with 1-hour serviceability checks</span>
+          </div>
+          <div className="flex items-center gap-4 text-[11px] uppercase tracking-[0.12em] text-[rgba(31,37,47,0.72)]">
+            <span>Selected areas only</span>
+            <span>OTP mobile sign-up</span>
+            <span>Backend zone control</span>
           </div>
         </div>
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(255,253,248,0.92)] backdrop-blur">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-4 lg:px-8">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
-            <div className="flex items-center gap-3">
-              <LogoMark />
-              <div>
-                <p className="font-[var(--font-display)] text-2xl font-semibold tracking-[0.04em]">
-                  Ceylon Cart
-                </p>
-                <p className="text-sm text-[var(--muted)]">
-                  Modern grocery delivery for Sri Lanka
-                </p>
+      <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-white">
+        <div className="mx-auto max-w-[1440px] px-3 lg:px-6">
+          <div className="flex flex-col gap-3 py-3">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--line)] bg-white text-[var(--ink)]"
+                >
+                  <Icon name="menu" />
+                </button>
+                <div className="flex items-center gap-3">
+                  <LogoMark />
+                  <div className="leading-tight">
+                    <p className="text-2xl font-extrabold tracking-tight text-[var(--ink)]">
+                      Ceylon Cart
+                    </p>
+                    <p className="text-xs font-medium text-[var(--muted)]">
+                      supermarket
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-3 xl:flex-row xl:items-center">
+                <button
+                  type="button"
+                  onClick={onGpsCheck}
+                  className="flex items-center gap-3 rounded-xl border border-[var(--line)] bg-[#f9fafb] px-4 py-3 text-left xl:min-w-[240px]"
+                >
+                  <div className="rounded-full bg-[var(--brand)] p-2 text-[var(--ink)]">
+                    <Icon name="location" className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                      Deliver to
+                    </p>
+                    <p className="truncate text-sm font-semibold text-[var(--ink)]">
+                      {serviceability?.zone?.district ?? "Check your location"}
+                    </p>
+                  </div>
+                </button>
+
+                <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border-2 border-[var(--brand)] bg-[#fffdf7] px-4 py-3 shadow-[0_8px_20px_rgba(255,198,41,0.12)]">
+                  <Icon name="search" className="h-5 w-5 text-[var(--muted)]" />
+                  <input
+                    value={query}
+                    onChange={(event) => onQueryChange(event.target.value)}
+                    placeholder="What are you looking for?"
+                    className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 xl:flex xl:items-center">
+                  <button
+                    type="button"
+                    onClick={onOpenAuth}
+                    className="rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-left"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                      Account
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[var(--ink)]">
+                      {registeredUserName ?? "Sign in"}
+                    </p>
+                  </button>
+
+                  <div className="rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-left">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                      Cart
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[var(--ink)]">
+                      {cartCount} items
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col gap-3 xl:flex-row xl:items-center">
-              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-[26px] border border-[var(--line)] bg-white px-4 py-3 shadow-[0_14px_34px_rgba(25,52,44,0.06)]">
-                <Icon name="search" className="h-5 w-5 text-[var(--brand)]" />
-                <input
-                  value={query}
-                  onChange={(event) => onQueryChange(event.target.value)}
-                  placeholder="Search for vegetables, tea, rice, bread, cleaning supplies..."
-                  className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
-                />
+            <div className="flex flex-wrap items-center gap-2 border-t border-[var(--line)] pt-3">
+              {categories.map((category) => {
+                const active = activeCategory === category.id;
+
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => onCategoryChange(category.id)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      active
+                        ? "bg-[var(--brand)] text-[var(--ink)]"
+                        : "bg-[#f3f4f6] text-[var(--muted)] hover:bg-[#eceef3]"
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-[1440px] px-3 py-4 lg:px-6">
+        <div className="grid gap-4 xl:grid-cols-[2.2fr_1fr]">
+          <div className="space-y-4">
+            <div className="grid gap-4 lg:grid-cols-[1.8fr_1fr]">
+              <section className="overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#ffe278,#ffcb37_55%,#ffb800)] p-6 shadow-[0_16px_32px_rgba(255,198,41,0.18)]">
+                <div className="flex h-full flex-col justify-between gap-6">
+                  <div className="max-w-xl">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-white/65 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink)]">
+                      <Icon name="truck" className="h-4 w-4" />
+                      Grocery in 60 minutes
+                    </div>
+                    <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight text-[var(--ink)] sm:text-5xl">
+                      Rebuild the store around Noon’s supermarket rhythm.
+                    </h1>
+                    <p className="mt-3 max-w-lg text-sm leading-6 text-[rgba(31,37,47,0.76)] sm:text-base">
+                      Tighter promo banners, dense category shortcuts, everyday deals, and a large marketplace search experience for Sri Lanka grocery orders.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {promoCards.map((card) => (
+                      <div
+                        key={card.id}
+                        className="rounded-2xl border border-white/50 bg-white/82 p-4 backdrop-blur"
+                      >
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                          {card.eyebrow}
+                        </p>
+                        <p className="mt-2 text-lg font-bold text-[var(--ink)]">
+                          {card.title}
+                        </p>
+                        <p className="mt-1 text-sm leading-5 text-[var(--muted)]">
+                          {card.description}
+                        </p>
+                        <p className="mt-3 text-sm font-semibold text-[var(--accent)]">
+                          {card.metric}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <section className="rounded-2xl bg-[linear-gradient(140deg,#0b5bd3,#4c8eff)] p-5 text-white shadow-[0_16px_30px_rgba(45,108,223,0.16)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/72">
+                    Mobile onboarding
+                  </p>
+                  <h2 className="mt-2 text-2xl font-extrabold">
+                    Register with your number and OTP
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-white/78">
+                    Built for repeat shoppers and quick reorders with a simple two-step sign-up flow.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onOpenAuth}
+                    className="mt-4 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[var(--accent)]"
+                  >
+                    Open sign-up
+                  </button>
+                </section>
+
+                <section className="rounded-2xl border border-[var(--line)] bg-white p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                        Basket total
+                      </p>
+                      <p className="mt-2 text-3xl font-extrabold text-[var(--ink)]">
+                        {formatCurrency(cartTotal)}
+                      </p>
+                    </div>
+                    <div className="rounded-full bg-[#fff3cc] p-3 text-[var(--ink)]">
+                      <Icon name="cart" className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-xl bg-[#f8f9fb] p-3">
+                      <p className="font-semibold text-[var(--ink)]">{cartCount}</p>
+                      <p className="text-[var(--muted)]">items in cart</p>
+                    </div>
+                    <div className="rounded-xl bg-[#f8f9fb] p-3">
+                      <p className="font-semibold text-[var(--ink)]">11 PM</p>
+                      <p className="text-[var(--muted)]">last slot today</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            <section className="rounded-2xl border border-[var(--line)] bg-white p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-[var(--ink)]">
+                    Popular supermarket shortcuts
+                  </p>
+                  <p className="text-sm text-[var(--muted)]">
+                    Faster browsing with the same compact shortcut pattern you see on marketplace grocery pages.
+                  </p>
+                </div>
+                <div className="hidden items-center gap-2 text-sm font-semibold text-[var(--accent)] md:flex">
+                  View all
+                  <Icon name="chevron" className="h-4 w-4" />
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
+                {categories.map((category) => {
+                  const active = activeCategory === category.id;
+
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => onCategoryChange(category.id)}
+                      className={`rounded-2xl border p-4 text-center transition ${
+                        active
+                          ? "border-[var(--brand)] bg-[#fff8df]"
+                          : "border-[var(--line)] bg-white hover:border-[#d8dce5] hover:bg-[#fafbfc]"
+                      }`}
+                    >
+                      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#fff3cc] text-[var(--ink)]">
+                        <Icon name={category.icon} className="h-6 w-6" />
+                      </div>
+                      <p className="mt-3 text-sm font-semibold text-[var(--ink)]">
+                        {category.name}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {aisleHighlights.map((item, index) => (
+                <div
+                  key={item.title}
+                  className={`rounded-2xl border border-[var(--line)] p-4 ${
+                    index === 0
+                      ? "bg-[#fff8df]"
+                      : index === 1
+                        ? "bg-[#edf4ff]"
+                        : "bg-[#fff1ee]"
+                  }`}
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Shopping mission
+                  </p>
+                  <h3 className="mt-2 text-lg font-bold text-[var(--ink)]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                    {item.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside className="space-y-4">
+            <section className="rounded-2xl border border-[var(--line)] bg-white p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Delivery eligibility
+                  </p>
+                  <h2 className="mt-2 text-2xl font-extrabold text-[var(--ink)]">
+                    Check your area
+                  </h2>
+                </div>
+                <div className="rounded-full bg-[#fff3cc] p-3 text-[var(--ink)]">
+                  <Icon name="location" className="h-5 w-5" />
+                </div>
+              </div>
+
+              <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+                {locationLabel}
+              </p>
+
+              <div
+                className={`mt-4 rounded-2xl p-4 ${
+                  serviceability?.eligible ? "bg-[#eaf7f1]" : "bg-[#fff7e8]"
+                }`}
+              >
+                <p className="text-sm font-semibold text-[var(--ink)]">
+                  {locating
+                    ? "Checking your delivery eligibility..."
+                    : serviceability?.message ??
+                      "Use live GPS or sample a configured zone below."}
+                </p>
+                {serviceability?.zone ? (
+                  <div className="mt-3 space-y-1 text-sm text-[var(--muted)]">
+                    <p>
+                      Hub: <span className="font-semibold text-[var(--ink)]">{serviceability.zone.name}</span>
+                    </p>
+                    <p>
+                      Distance: <span className="font-semibold text-[var(--ink)]">{serviceability.distanceKm} km</span>
+                    </p>
+                    <p>
+                      ETA: <span className="font-semibold text-[var(--ink)]">{serviceability.etaMinutes} min</span>
+                    </p>
+                  </div>
+                ) : null}
+                {locationError ? (
+                  <p className="mt-3 text-sm font-semibold text-[var(--danger)]">
+                    {locationError}
+                  </p>
+                ) : null}
               </div>
 
               <button
                 type="button"
                 onClick={onGpsCheck}
-                className="flex items-center justify-center gap-2 rounded-[22px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--brand-deep)] transition hover:-translate-y-0.5"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-bold text-[var(--ink)]"
               >
-                <Icon name="location" className="h-5 w-5" />
-                Use GPS
+                <Icon name="location" className="h-4 w-4" />
+                Check with GPS
               </button>
 
-              <button
-                type="button"
-                onClick={onOpenAuth}
-                className="flex items-center justify-center gap-2 rounded-[22px] border border-[var(--line)] bg-white px-4 py-3 text-sm font-semibold text-[var(--ink)] transition hover:-translate-y-0.5"
-              >
-                <Icon name="user" className="h-5 w-5" />
-                {registeredUserName ?? "Register / Sign in"}
-              </button>
-
-              <div className="flex items-center justify-center gap-2 rounded-[22px] bg-[var(--ink)] px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(25,52,44,0.18)]">
-                <Icon name="cart" className="h-5 w-5" />
-                {cartCount} items
+              <div className="mt-4 space-y-2">
+                {liveZones.map((zone) => (
+                  <button
+                    key={zone.id}
+                    type="button"
+                    onClick={() => onSampleZoneCheck(zone)}
+                    className="flex w-full items-center justify-between rounded-xl border border-[var(--line)] bg-[#fafbfc] px-4 py-3 text-left"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--ink)]">{zone.name}</p>
+                      <p className="text-sm text-[var(--muted)]">{zone.district}</p>
+                    </div>
+                    <span className="text-sm font-semibold text-[var(--accent)]">
+                      {zone.radiusKm} km
+                    </span>
+                  </button>
+                ))}
               </div>
-            </div>
-          </div>
+            </section>
 
-          <div className="flex flex-wrap gap-2">
-            {highlightPills.map((pill) => (
-              <span
-                key={pill}
-                className="rounded-full border border-[var(--line)] bg-white px-3 py-1.5 text-xs font-semibold tracking-[0.08em] uppercase text-[var(--muted)]"
-              >
-                {pill}
-              </span>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-[1440px] px-4 py-6 lg:px-8 lg:py-8">
-        <section className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_320px]">
-        <aside className="hidden rounded-[30px] border border-[var(--line)] bg-white p-5 shadow-[0_24px_48px_rgba(25,52,44,0.06)] xl:block">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-[var(--font-display)] text-2xl font-semibold">
-              Shop by aisle
-            </h2>
-            <span className="text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-              Inspired by big-basket browsing
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {categories.map((category: Category) => {
-              const active = activeCategory === category.id;
-
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  onClick={() => onCategoryChange(category.id)}
-                  className={`flex w-full items-start gap-3 rounded-[24px] px-4 py-3 text-left transition ${
-                    active
-                      ? "bg-[linear-gradient(135deg,#19342c,#0f8c76)] text-white shadow-[0_18px_40px_rgba(15,99,84,0.2)]"
-                      : "bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-strong)]"
-                  }`}
-                >
+            <section className="rounded-2xl border border-[var(--line)] bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                Built-in platform features
+              </p>
+              <div className="mt-4 space-y-3">
+                {highlightPills.map((pill) => (
                   <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
-                      active
-                        ? "bg-white/14 text-white"
-                        : "bg-[rgba(15,140,118,0.12)] text-[var(--brand-deep)]"
-                    }`}
+                    key={pill}
+                    className="flex items-center gap-3 rounded-xl bg-[#f8f9fb] px-4 py-3"
                   >
-                    <Icon name={category.icon} />
-                  </div>
-                  <div>
-                    <p className="font-semibold">{category.name}</p>
-                    <p
-                      className={`mt-1 text-sm ${
-                        active ? "text-white/74" : "text-[var(--muted)]"
-                      }`}
-                    >
-                      {category.description}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </aside>
-
-        <div className="space-y-5">
-          <div className="relative overflow-hidden rounded-[36px] border border-[rgba(15,140,118,0.12)] bg-[linear-gradient(135deg,#fff3df_0%,#fffdf6_36%,#d8f6ee_100%)] p-6 shadow-[0_28px_56px_rgba(25,52,44,0.08)] sm:p-8">
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-[42%] bg-[radial-gradient(circle_at_top,rgba(244,118,77,0.28),transparent_42%),radial-gradient(circle_at_bottom,rgba(15,140,118,0.22),transparent_48%)]" />
-            <div className="relative max-w-2xl">
-              <span className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-semibold tracking-[0.16em] uppercase text-[var(--brand)] shadow-sm">
-                Sri Lanka grocery superstore
-              </span>
-              <h1 className="mt-4 max-w-xl font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--ink)] sm:text-6xl">
-                A Noon-style grocery experience, reimagined with a tropical Sri Lankan palette.
-              </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-lg">
-                This concept storefront combines dense category browsing, fast-deal merchandising,
-                GPS-based delivery checks, and OTP onboarding into a single modern grocery journey.
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={onOpenAuth}
-                  className="rounded-full bg-[var(--ink)] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(25,52,44,0.18)] transition hover:-translate-y-0.5"
-                >
-                  Create mobile account
-                </button>
-                <button
-                  type="button"
-                  onClick={onGpsCheck}
-                  className="rounded-full border border-[var(--line)] bg-white px-6 py-3 text-sm font-semibold text-[var(--brand-deep)] transition hover:-translate-y-0.5"
-                >
-                  Check 1-hour delivery
-                </button>
-              </div>
-
-              <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                {promoCards.map((card) => (
-                  <article
-                    key={card.id}
-                    className={`rounded-[28px] border border-white/60 bg-gradient-to-br ${card.accent} p-4 shadow-[0_18px_40px_rgba(25,52,44,0.08)]`}
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-                      {card.eyebrow}
-                    </p>
-                    <h3 className="mt-3 text-xl font-semibold text-[var(--ink)]">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{card.description}</p>
-                    <p className="mt-4 text-sm font-semibold text-[var(--brand-deep)]">
-                      {card.metric}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {aisleHighlights.map((item, index) => (
-              <article
-                key={item.title}
-                className={`rounded-[28px] border border-[var(--line)] p-5 shadow-[0_18px_40px_rgba(25,52,44,0.05)] ${
-                  index === 0
-                    ? "bg-[linear-gradient(135deg,#fff7e8,#ffffff)]"
-                    : index === 1
-                      ? "bg-[linear-gradient(135deg,#e7f8f1,#ffffff)]"
-                      : "bg-[linear-gradient(135deg,#fff0e9,#ffffff)]"
-                }`}
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-                  Curated mission
-                </p>
-                <h3 className="mt-3 text-xl font-semibold">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-
-          <aside className="space-y-5">
-            <div className="rounded-[30px] border border-[var(--line)] bg-white p-5 shadow-[0_24px_48px_rgba(25,52,44,0.06)]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
-                  Delivery status
-                </p>
-                <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold">
-                  One-hour coverage
-                </h2>
-              </div>
-              <div className="rounded-2xl bg-[rgba(15,140,118,0.1)] p-3 text-[var(--brand)]">
-                <Icon name="location" className="h-6 w-6" />
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm leading-6 text-[var(--muted)]">{locationLabel}</p>
-
-            <div
-              className={`mt-5 rounded-[24px] p-4 ${
-                serviceability?.eligible
-                  ? "bg-[linear-gradient(135deg,#dff7ee,#f8fffc)]"
-                  : "bg-[linear-gradient(135deg,#fff1e9,#fffaf7)]"
-              }`}
-            >
-              <p className="text-sm font-semibold text-[var(--ink)]">
-                {locating
-                  ? "Checking your delivery eligibility..."
-                  : serviceability?.message ??
-                    "Try live GPS or tap one of the configured delivery hubs below."}
-              </p>
-              {serviceability?.zone ? (
-                <div className="mt-3 text-sm text-[var(--muted)]">
-                  <p>
-                    Active hub:{" "}
-                    <span className="font-semibold text-[var(--ink)]">
-                      {serviceability.zone.name}
-                    </span>
-                  </p>
-                  <p>
-                    Distance:{" "}
-                    <span className="font-semibold text-[var(--ink)]">
-                      {serviceability.distanceKm} km
-                    </span>
-                  </p>
-                  <p>
-                    Minimum order:{" "}
-                    <span className="font-semibold text-[var(--ink)]">
-                      LKR {serviceability.zone.minOrder.toLocaleString()}
-                    </span>
-                  </p>
-                </div>
-              ) : null}
-              {locationError ? (
-                <p className="mt-3 text-sm font-medium text-[var(--accent)]">{locationError}</p>
-              ) : null}
-            </div>
-
-            <div className="mt-5 space-y-2">
-              {zones.filter((zone) => zone.active).slice(0, 5).map((zone) => (
-                <button
-                  key={zone.id}
-                  type="button"
-                  onClick={() => onSampleZoneCheck(zone)}
-                  className="flex w-full items-center justify-between rounded-[22px] border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-left transition hover:-translate-y-0.5 hover:bg-white"
-                >
-                  <div>
-                    <p className="font-semibold">{zone.name}</p>
-                    <p className="text-sm text-[var(--muted)]">{zone.district}</p>
-                  </div>
-                  <span className="text-sm font-semibold text-[var(--brand-deep)]">
-                    {zone.radiusKm} km
-                  </span>
-                </button>
-              ))}
-            </div>
-            </div>
-
-            <div className="rounded-[30px] border border-[var(--line)] bg-[linear-gradient(160deg,#19342c,#0f6354)] p-5 text-white shadow-[0_24px_48px_rgba(25,52,44,0.18)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                Basket summary
-              </p>
-              <div className="mt-4 flex items-end justify-between">
-                <div>
-                  <p className="text-4xl font-semibold">{formattedCartTotal}</p>
-                  <p className="mt-1 text-sm text-white/74">
-                    {cartCount} items ready for checkout
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-white/10 p-3">
-                  <Icon name="cart" className="h-6 w-6" />
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-3 text-sm text-white/78">
-                {serviceMoments.map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <span className="rounded-full bg-white/10 p-1">
+                    <div className="rounded-full bg-[#fff3cc] p-2 text-[var(--ink)]">
                       <Icon name="check" className="h-4 w-4" />
-                    </span>
-                    <span>{item}</span>
+                    </div>
+                    <p className="text-sm font-semibold text-[var(--ink)]">{pill}</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           </aside>
-        </section>
+        </div>
       </div>
     </>
   );
