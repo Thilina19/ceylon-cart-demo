@@ -67,12 +67,14 @@ export function HeroSection({
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Icon name="truck" className="h-4 w-4" />
-            <span>Supermarket-style delivery for Sri Lanka with 1-hour serviceability checks</span>
+            <span>
+              Free delivery on selected baskets. Shop groceries, fresh food, and home essentials in one place.
+            </span>
           </div>
           <div className="flex items-center gap-4 text-[11px] uppercase tracking-[0.12em] text-[rgba(31,37,47,0.72)]">
-            <span>Selected areas only</span>
-            <span>OTP mobile sign-up</span>
-            <span>Backend zone control</span>
+            <span>Express delivery</span>
+            <span>Daily deals</span>
+            <span>Weekly savings</span>
           </div>
         </div>
       </div>
@@ -115,7 +117,7 @@ export function HeroSection({
                       Deliver to
                     </p>
                     <p className="truncate text-sm font-semibold text-[var(--ink)]">
-                      {serviceability?.zone?.district ?? "Check your location"}
+                      {serviceability?.zone?.district ?? "Choose your location"}
                     </p>
                   </div>
                 </button>
@@ -125,7 +127,7 @@ export function HeroSection({
                   <input
                     value={query}
                     onChange={(event) => onQueryChange(event.target.value)}
-                    placeholder="What are you looking for?"
+                    placeholder="Search for products, brands and more"
                     className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
                   />
                 </div>
@@ -188,14 +190,14 @@ export function HeroSection({
                 <div className="flex h-full flex-col justify-between gap-6">
                   <div className="max-w-xl">
                     <div className="inline-flex items-center gap-2 rounded-full bg-white/65 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink)]">
-                      <Icon name="truck" className="h-4 w-4" />
-                      Grocery in 60 minutes
+                      <Icon name="tag" className="h-4 w-4" />
+                      Daily supermarket deals
                     </div>
                     <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight text-[var(--ink)] sm:text-5xl">
-                      Rebuild the store around Noon’s supermarket rhythm.
+                      Everything you need for the week, all in one basket.
                     </h1>
                     <p className="mt-3 max-w-lg text-sm leading-6 text-[rgba(31,37,47,0.76)] sm:text-base">
-                      Tighter promo banners, dense category shortcuts, everyday deals, and a large marketplace search experience for Sri Lanka grocery orders.
+                      Discover fresh produce, pantry staples, chilled essentials, beverages, and home care with fast delivery across selected areas.
                     </p>
                   </div>
 
@@ -226,20 +228,20 @@ export function HeroSection({
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                 <section className="rounded-2xl bg-[linear-gradient(140deg,#0b5bd3,#4c8eff)] p-5 text-white shadow-[0_16px_30px_rgba(45,108,223,0.16)]">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/72">
-                    Mobile onboarding
+                    Smart shopping
                   </p>
                   <h2 className="mt-2 text-2xl font-extrabold">
-                    Register with your number and OTP
+                    Save more on everyday staples
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-white/78">
-                    Built for repeat shoppers and quick reorders with a simple two-step sign-up flow.
+                    Shop rice, milk, bread, eggs, drinks, and cleaning essentials with easy repeat ordering.
                   </p>
                   <button
                     type="button"
                     onClick={onOpenAuth}
                     className="mt-4 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[var(--accent)]"
                   >
-                    Open sign-up
+                    Sign in
                   </button>
                 </section>
 
@@ -260,11 +262,11 @@ export function HeroSection({
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <div className="rounded-xl bg-[#f8f9fb] p-3">
                       <p className="font-semibold text-[var(--ink)]">{cartCount}</p>
-                      <p className="text-[var(--muted)]">items in cart</p>
+                      <p className="text-[var(--muted)]">items in basket</p>
                     </div>
                     <div className="rounded-xl bg-[#f8f9fb] p-3">
                       <p className="font-semibold text-[var(--ink)]">11 PM</p>
-                      <p className="text-[var(--muted)]">last slot today</p>
+                      <p className="text-[var(--muted)]">last order today</p>
                     </div>
                   </div>
                 </section>
@@ -278,7 +280,7 @@ export function HeroSection({
                     Popular supermarket shortcuts
                   </p>
                   <p className="text-sm text-[var(--muted)]">
-                    Faster browsing with the same compact shortcut pattern you see on marketplace grocery pages.
+                    Jump straight into the departments people shop from most.
                   </p>
                 </div>
                 <div className="hidden items-center gap-2 text-sm font-semibold text-[var(--accent)] md:flex">
@@ -327,7 +329,7 @@ export function HeroSection({
                   }`}
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-                    Shopping mission
+                    Shopping picks
                   </p>
                   <h3 className="mt-2 text-lg font-bold text-[var(--ink)]">
                     {item.title}
@@ -345,7 +347,7 @@ export function HeroSection({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-                    Delivery eligibility
+                    Delivery address
                   </p>
                   <h2 className="mt-2 text-2xl font-extrabold text-[var(--ink)]">
                     Check your area
@@ -369,18 +371,27 @@ export function HeroSection({
                   {locating
                     ? "Checking your delivery eligibility..."
                     : serviceability?.message ??
-                      "Use live GPS or sample a configured zone below."}
+                      "Use your location to see whether express delivery is available in your area."}
                 </p>
                 {serviceability?.zone ? (
                   <div className="mt-3 space-y-1 text-sm text-[var(--muted)]">
                     <p>
-                      Hub: <span className="font-semibold text-[var(--ink)]">{serviceability.zone.name}</span>
+                      Hub:{" "}
+                      <span className="font-semibold text-[var(--ink)]">
+                        {serviceability.zone.name}
+                      </span>
                     </p>
                     <p>
-                      Distance: <span className="font-semibold text-[var(--ink)]">{serviceability.distanceKm} km</span>
+                      Distance:{" "}
+                      <span className="font-semibold text-[var(--ink)]">
+                        {serviceability.distanceKm} km
+                      </span>
                     </p>
                     <p>
-                      ETA: <span className="font-semibold text-[var(--ink)]">{serviceability.etaMinutes} min</span>
+                      ETA:{" "}
+                      <span className="font-semibold text-[var(--ink)]">
+                        {serviceability.etaMinutes} min
+                      </span>
                     </p>
                   </div>
                 ) : null}
@@ -397,7 +408,7 @@ export function HeroSection({
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-bold text-[var(--ink)]"
               >
                 <Icon name="location" className="h-4 w-4" />
-                Check with GPS
+                Use current location
               </button>
 
               <div className="mt-4 space-y-2">
@@ -409,7 +420,9 @@ export function HeroSection({
                     className="flex w-full items-center justify-between rounded-xl border border-[var(--line)] bg-[#fafbfc] px-4 py-3 text-left"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-[var(--ink)]">{zone.name}</p>
+                      <p className="text-sm font-semibold text-[var(--ink)]">
+                        {zone.name}
+                      </p>
                       <p className="text-sm text-[var(--muted)]">{zone.district}</p>
                     </div>
                     <span className="text-sm font-semibold text-[var(--accent)]">
@@ -422,7 +435,7 @@ export function HeroSection({
 
             <section className="rounded-2xl border border-[var(--line)] bg-white p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-                Built-in platform features
+                Why shoppers come back
               </p>
               <div className="mt-4 space-y-3">
                 {highlightPills.map((pill) => (

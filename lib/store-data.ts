@@ -96,36 +96,36 @@ export const categories: Category[] = [
 export const promoCards: PromoCard[] = [
   {
     id: "flash",
-    eyebrow: "Today only",
-    title: "Island harvest deals",
-    description: "Up to 28% off vegetables, bananas, leafy greens, and pantry favorites.",
-    accent: "from-[#ffe5c5] via-[#fff4df] to-[#fbe0d2]",
-    metric: "60 min",
+    eyebrow: "Fresh today",
+    title: "Up to 25% off produce",
+    description: "Daily-picked fruit, greens, roots, and salad basics from trusted local suppliers.",
+    accent: "from-[#ffe39f] via-[#fff2cb] to-[#fff9e7]",
+    metric: "Shop now",
   },
   {
     id: "delivery",
-    eyebrow: "Live operations",
-    title: "One-hour delivery zones",
-    description: "Backend-managed Colombo area coverage with instant GPS eligibility checks.",
-    accent: "from-[#c7f1e5] via-[#effef9] to-[#d7f4ff]",
-    metric: "7 zones",
+    eyebrow: "Express",
+    title: "Get it in 60 minutes",
+    description: "Fast grocery delivery across selected Colombo neighborhoods for everyday essentials.",
+    accent: "from-[#d7e8ff] via-[#edf4ff] to-[#f6faff]",
+    metric: "View areas",
   },
   {
     id: "new-user",
-    eyebrow: "New here",
-    title: "Register by mobile OTP",
-    description: "Frictionless sign-up built for repeat grocery orders and local delivery trust.",
-    accent: "from-[#ffe0e4] via-[#fff4f5] to-[#ffe9c8]",
-    metric: "2 steps",
+    eyebrow: "Weekend picks",
+    title: "Stock up and save more",
+    description: "Multi-buy offers on pantry staples, home care, chilled drinks, and family-size packs.",
+    accent: "from-[#ffe5db] via-[#fff1eb] to-[#fff7f2]",
+    metric: "See offers",
   },
 ];
 
 export const highlightPills = [
-  "Same-day slots",
-  "GPS-based delivery check",
-  "Sri Lanka mobile OTP",
-  "Fresh picks by neighborhood",
-  "Backend delivery zone control",
+  "Express delivery",
+  "Daily deals",
+  "Fresh arrivals",
+  "Best sellers",
+  "Weekly basket savings",
 ];
 
 export const aisleHighlights = [
@@ -320,10 +320,10 @@ export const products: Product[] = [
 ];
 
 export const serviceMoments = [
-  "Live order cut-off until 11:00 PM",
-  "Substitution-ready inventory notes",
-  "Cash, card, and wallet checkout paths",
-  "Built for repeat orders and weekly baskets",
+  "Express slots available every day",
+  "Fresh produce sourced daily",
+  "Cash, card, and wallet payments",
+  "Easy reorders for weekly shopping",
 ];
 
 const deliveryZonesState: DeliveryZone[] = [

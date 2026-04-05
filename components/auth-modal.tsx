@@ -45,10 +45,10 @@ export function AuthModal({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-              Mobile registration
+              Account access
             </p>
             <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-[var(--ink)]">
-              {phase === "details" ? "Create your account" : "Enter OTP"}
+              {phase === "details" ? "Sign in to your account" : "Verify your mobile"}
             </h2>
           </div>
           <button
@@ -63,9 +63,9 @@ export function AuthModal({
         {phase === "details" ? (
           <div className="mt-6 space-y-4">
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-[var(--muted)]">
-                Full name
-              </span>
+                  <span className="mb-2 block text-sm font-semibold text-[var(--muted)]">
+                    Full name
+                  </span>
               <input
                 value={name}
                 onChange={(event) => onNameChange(event.target.value)}
@@ -74,9 +74,9 @@ export function AuthModal({
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-[var(--muted)]">
-                Sri Lanka mobile number
-              </span>
+                  <span className="mb-2 block text-sm font-semibold text-[var(--muted)]">
+                    Mobile number
+                  </span>
               <input
                 value={phone}
                 onChange={(event) => onPhoneChange(event.target.value)}
@@ -100,7 +100,7 @@ export function AuthModal({
               <p className="mt-1">{phone}</p>
               {otpPreview ? (
                 <p className="mt-3 rounded-xl bg-white px-3 py-2 font-semibold text-[var(--accent)]">
-                  Demo OTP: {otpPreview}
+                  Verification code: {otpPreview}
                 </p>
               ) : null}
             </div>
