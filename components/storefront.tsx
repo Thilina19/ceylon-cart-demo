@@ -75,10 +75,6 @@ export function Storefront() {
   });
 
   const cartCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
-  const cartTotal = products.reduce((sum, product) => {
-    return sum + (cart[product.id] ?? 0) * product.price;
-  }, 0);
-
   function addToCart(productId: string) {
     setCart((current) => ({
       ...current,
@@ -231,7 +227,6 @@ export function Storefront() {
       <HeroSection
         activeCategory={activeCategory}
         cartCount={cartCount}
-        cartTotal={cartTotal}
         locating={locating}
         locationError={locationError}
         locationLabel={locationLabel}
