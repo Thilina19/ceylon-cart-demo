@@ -14,6 +14,24 @@ export type PromoCard = {
   metric: string;
 };
 
+export type AnnouncementBanner = {
+  active: boolean;
+  text: string;
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+export type PromoPopup = {
+  id: string;
+  active: boolean;
+  eyebrow: string;
+  title: string;
+  description: string;
+  primaryLabel: string;
+  secondaryLabel: string;
+  image: string;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -43,8 +61,10 @@ export type DeliveryZone = {
 };
 
 export type StorefrontData = {
+  announcementBanner: AnnouncementBanner;
   categories: Category[];
   promoCards: PromoCard[];
+  promoPopup: PromoPopup;
   highlightPills: string[];
   products: Product[];
   deliveryZones: DeliveryZone[];
@@ -123,6 +143,26 @@ export const promoCardsSeed: PromoCard[] = [
   },
 ];
 
+export const announcementBannerSeed: AnnouncementBanner = {
+  active: true,
+  text: "Free delivery above LKR 5,000 across selected Colombo zones this week.",
+  ctaLabel: "See coverage",
+  ctaHref: "#coverage",
+};
+
+export const promoPopupSeed: PromoPopup = {
+  id: "new-weekly-basket",
+  active: true,
+  eyebrow: "This week only",
+  title: "Build your weekly basket faster",
+  description:
+    "Fresh produce, pantry staples, and household essentials in one order with express delivery across selected areas.",
+  primaryLabel: "Start shopping",
+  secondaryLabel: "Maybe later",
+  image:
+    "https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1200&q=80",
+};
+
 export const highlightPillsSeed = [
   "Express delivery",
   "Daily deals",
@@ -160,8 +200,10 @@ export const deliveryZonesSeed: DeliveryZone[] = [
 
 export function createSeedStorefrontData(): StorefrontData {
   return {
+    announcementBanner: structuredClone(announcementBannerSeed),
     categories: structuredClone(categoriesSeed),
     promoCards: structuredClone(promoCardsSeed),
+    promoPopup: structuredClone(promoPopupSeed),
     highlightPills: structuredClone(highlightPillsSeed),
     products: structuredClone(productsSeed),
     deliveryZones: structuredClone(deliveryZonesSeed),

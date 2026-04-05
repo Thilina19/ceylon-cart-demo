@@ -3,11 +3,13 @@ import os from "os";
 import path from "path";
 import { randomInt, randomUUID } from "crypto";
 import {
+  type AnnouncementBanner,
   createSeedStorefrontData,
   type DeliveryZone,
   type OrderItemInput,
   type OrderRecord,
   type Product,
+  type PromoPopup,
   type RegisteredUser,
   type StorefrontData,
 } from "@/lib/store-data";
@@ -94,6 +96,29 @@ function cleanupOtpRecords(db: Database) {
 export async function getStorefrontData() {
   const db = await readDb();
   return db.storefront;
+}
+
+export async function updateStorefrontContent(patch: {
+  announcementBanner?: Partial<AnnouncementBanner>;
+  promoPopup?: Partial<PromoPopup>;
+}) {
+  return withWriteLock(async (db) => {
+    if (patch.announcementBanner) {
+      db.storefront.announcementBanner = {
+        ...db.storefront.announcementBanner,
+        ...patch.announcementBanner,
+      };
+    }
+
+    if (patch.promoPopup) {
+      db.storefront.promoPopup = {
+        ...db.storefront.promoPopup,
+        ...patch.promoPopup,
+      };
+    }
+
+    return db.storefront;
+  });
 }
 
 export async function getProducts() {

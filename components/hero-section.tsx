@@ -1,5 +1,10 @@
 import Image from "next/image";
-import type { Category, DeliveryZone, PromoCard } from "@/lib/store-data";
+import type {
+  AnnouncementBanner,
+  Category,
+  DeliveryZone,
+  PromoCard,
+} from "@/lib/store-data";
 import { Icon, LogoMark } from "@/components/icons";
 
 type ServiceabilityState = {
@@ -13,6 +18,7 @@ type ServiceabilityState = {
 
 type HeroSectionProps = {
   activeCategory: string;
+  announcementBanner: AnnouncementBanner;
   cartCount: number;
   categories: Category[];
   highlightPills: string[];
@@ -34,6 +40,7 @@ type HeroSectionProps = {
 
 export function HeroSection({
   activeCategory,
+  announcementBanner,
   cartCount,
   categories,
   highlightPills,
@@ -57,6 +64,20 @@ export function HeroSection({
 
   return (
     <>
+      {announcementBanner.active ? (
+        <div className="border-b border-[rgba(22,50,44,0.08)] bg-[var(--ink)] text-white">
+          <div className="mx-auto flex max-w-[1500px] flex-col gap-3 px-4 py-3 text-sm lg:flex-row lg:items-center lg:justify-between lg:px-8">
+            <p className="font-medium text-white/84">{announcementBanner.text}</p>
+            <a
+              href={announcementBanner.ctaHref || "#"}
+              className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--ink)]"
+            >
+              {announcementBanner.ctaLabel}
+            </a>
+          </div>
+        </div>
+      ) : null}
+
       <header className="sticky top-0 z-40 border-b border-[rgba(22,50,44,0.08)] bg-[rgba(247,251,248,0.9)] backdrop-blur">
         <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-4 lg:px-8">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">

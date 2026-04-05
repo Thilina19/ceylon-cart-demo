@@ -7,6 +7,7 @@ import { CatalogSection } from "@/components/catalog-section";
 import { CheckoutSheet } from "@/components/checkout-sheet";
 import { FooterCta } from "@/components/footer-cta";
 import { HeroSection } from "@/components/hero-section";
+import { MarketingPopup } from "@/components/marketing-popup";
 import type {
   DeliveryZone,
   RegisteredUser,
@@ -62,6 +63,7 @@ export function Storefront() {
   const [checkoutAddress, setCheckoutAddress] = useState("");
   const [checkoutNote, setCheckoutNote] = useState("");
   const [checkoutMessage, setCheckoutMessage] = useState("");
+  const [popupOpen, setPopupOpen] = useState(false);
   const [isAuthPending, startAuthTransition] = useTransition();
   const [isCheckoutPending, startCheckoutTransition] = useTransition();
 
@@ -121,6 +123,8 @@ export function Storefront() {
 
   const categories = storefront?.categories ?? [];
   const promoCards = storefront?.promoCards ?? [];
+  const announcementBanner = storefront?.announcementBanner;
+  const promoPopup = storefront?.promoPopup;
   const highlightPills = storefront?.highlightPills ?? [];
   const products = storefront?.products ?? [];
   const zones = storefront?.deliveryZones ?? [];
@@ -153,6 +157,17 @@ export function Storefront() {
   const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0);
   const deliveryFee = subtotal === 0 ? 0 : subtotal >= 5000 ? 0 : 350;
   const total = subtotal + deliveryFee;
+
+  useEffect(() => {
+    if (!promoPopup?.active) {
+      setPopupOpen(false);
+      return;
+    }
+
+    const storageKey = `ceylon-cart-popup-dismissed:${promoPopup.id}`;
+    const alreadyDismissed = window.sessionStorage.getItem(storageKey);
+    setPopupOpen(!alreadyDismissed);
+  }, [promoPopup]);
 
   function addToCart(productId: string) {
     setCart((current) => ({
@@ -370,6 +385,16 @@ export function Storefront() {
     });
   }
 
+  function dismissPopup() {
+    if (promoPopup?.id) {
+      window.sessionStorage.setItem(
+        `ceylon-cart-popup-dismissed:${promoPopup.id}`,
+        "true",
+      );
+    }
+    setPopupOpen(false);
+  }
+
   if (storeLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
@@ -404,6 +429,14 @@ export function Storefront() {
     <div className="min-h-screen">
       <HeroSection
         activeCategory={activeCategory}
+        announcementBanner={
+          announcementBanner ?? {
+            active: false,
+            text: "",
+            ctaLabel: "",
+            ctaHref: "#",
+          }
+        }
         cartCount={cartCount}
         categories={categories}
         highlightPills={highlightPills}
@@ -482,6 +515,14 @@ export function Storefront() {
         onQuantityChange={updateCartQuantity}
         onSubmit={submitOrder}
       />
+
+      {promoPopup ? (
+        <MarketingPopup
+          popup={promoPopup}
+          open={popupOpen}
+          onClose={dismissPopup}
+        />
+      ) : null}
     </div>
   );
 }

@@ -14,7 +14,7 @@ export function BackendSection({ zones }: { zones: DeliveryZone[] }) {
   const liveZones = zones.filter((zone) => zone.active);
 
   return (
-    <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <section id="coverage" className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
       <article className="overflow-hidden rounded-[36px] bg-[linear-gradient(135deg,#14312b,#20483f)] text-white shadow-[0_24px_48px_rgba(22,50,44,0.18)]">
         <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="p-7">

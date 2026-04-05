@@ -14,8 +14,10 @@ export default async function AdminPage() {
     <AdminDashboard
       adminEmail={getAdminDefaults().email}
       categories={storefront.categories}
+      initialAnnouncementBanner={storefront.announcementBanner}
       initialOrders={orders}
       initialProducts={storefront.products}
+      initialPromoPopup={storefront.promoPopup}
       initialZones={storefront.deliveryZones}
     />
   );
