@@ -35,40 +35,39 @@ function categoryIcon(category: string) {
   }
 }
 
-function getShelves(visibleProducts: typeof products) {
+function buildShelves(visibleProducts: typeof products) {
   const discounted = visibleProducts.filter((product) => product.wasPrice);
-  const produce = visibleProducts.filter((product) => product.category === "produce");
-  const staples = visibleProducts.filter(
+  const fresh = visibleProducts.filter(
+    (product) => product.category === "produce" || product.category === "seafood",
+  );
+  const pantry = visibleProducts.filter(
     (product) =>
       product.category === "pantry" ||
       product.category === "dairy" ||
-      product.category === "home",
+      product.category === "beverages",
   );
 
   return [
     {
-      id: "deals",
-      title: "Top deals",
-      subtitle: "The first shelf should feel dense, promotional, and value-first like a supermarket landing page.",
+      id: "offer",
+      title: "This week in your kitchen",
+      subtitle: "Best-value staples for breakfast, lunch, dinner, and quick top-ups.",
       products: discounted.length ? discounted : visibleProducts.slice(0, 6),
-      banner: "Extra savings on pantry and household essentials",
-      tone: "bg-[#fff8df]",
+      tone: "from-[#fff4d9] to-[#fffaf0]",
     },
     {
       id: "fresh",
-      title: "Fresh picks",
-      subtitle: "Fast-moving fruit, vegetables, chilled items, and local favorites.",
-      products: produce.length ? produce : visibleProducts.slice(0, 6),
-      banner: "Daily selection from Nuwara Eliya, Hatton, Negombo, and Colombo",
-      tone: "bg-[#edf4ff]",
+      title: "Fresh from the market",
+      subtitle: "Vegetables, fruit, fish, chicken, and chilled picks chosen for the week ahead.",
+      products: fresh.length ? fresh : visibleProducts.slice(0, 6),
+      tone: "from-[#edf8f3] to-[#fbfefc]",
     },
     {
-      id: "essentials",
-      title: "Daily essentials",
-      subtitle: "Rice, dairy, cleaning refills, and everything customers reorder each week.",
-      products: staples.length ? staples : visibleProducts.slice(0, 6),
-      banner: "Weekly basket staples ready for same-day fulfillment",
-      tone: "bg-[#fff1ee]",
+      id: "pantry",
+      title: "Home and pantry reorders",
+      subtitle: "Rice, tea, milk, refills, and household basics worth keeping close at hand.",
+      products: pantry.length ? pantry : visibleProducts.slice(0, 6),
+      tone: "from-[#f7f3ff] to-[#fcfbff]",
     },
   ];
 }
@@ -79,47 +78,49 @@ export function CatalogSection({
   onAddToCart,
   onCategoryChange,
 }: CatalogSectionProps) {
-  const shelves = getShelves(visibleProducts);
+  const shelves = buildShelves(visibleProducts);
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-6">
       {activeCategory !== "all" ? (
-        <div className="rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm text-[var(--muted)]">
-          Showing products for <span className="font-semibold text-[var(--ink)]">{activeCategory}</span>.
+        <div className="rounded-[24px] border border-[var(--line)] bg-white px-4 py-3 text-sm text-[var(--muted)] shadow-[0_10px_24px_rgba(22,50,44,0.04)]">
+          Browsing <span className="font-semibold text-[var(--ink)]">{activeCategory}</span>.
           <button
             type="button"
             onClick={() => onCategoryChange("all")}
             className="ml-2 font-semibold text-[var(--accent)]"
           >
-            Reset filter
+            Show all
           </button>
         </div>
       ) : null}
 
       {shelves.map((shelf) => (
-        <div key={shelf.id} className="rounded-2xl border border-[var(--line)] bg-white">
-          <div className="flex flex-col gap-3 border-b border-[var(--line)] px-4 py-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-                Supermarket shelf
-              </p>
-              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--ink)]">
-                {shelf.title}
-              </h2>
-              <p className="mt-1 max-w-3xl text-sm text-[var(--muted)]">
-                {shelf.subtitle}
-              </p>
+        <article
+          key={shelf.id}
+          className="overflow-hidden rounded-[32px] border border-[var(--line)] bg-white shadow-[0_18px_42px_rgba(22,50,44,0.05)]"
+        >
+          <div className={`bg-gradient-to-r ${shelf.tone} px-5 py-5`}>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                  Curated shelf
+                </p>
+                <h2 className="mt-2 font-[var(--font-display)] text-4xl font-semibold text-[var(--ink)]">
+                  {shelf.title}
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">
+                  {shelf.subtitle}
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--accent)] shadow-sm">
+                <Icon name="spark" className="h-4 w-4" />
+                Handpicked for fast shopping
+              </div>
             </div>
-            <button
-              type="button"
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-[var(--ink)] ${shelf.tone}`}
-            >
-              <Icon name="tag" className="h-4 w-4" />
-              {shelf.banner}
-            </button>
           </div>
 
-          <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-6">
+          <div className="grid gap-4 p-5 sm:grid-cols-2 xl:grid-cols-3">
             {shelf.products.map((product) => {
               const discount =
                 product.wasPrice && product.wasPrice > product.price
@@ -129,73 +130,66 @@ export function CatalogSection({
               return (
                 <article
                   key={`${shelf.id}-${product.id}`}
-                  className="rounded-2xl border border-[var(--line)] bg-white p-3 transition hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                  className="rounded-[28px] border border-[var(--line)] bg-[var(--surface-strong)] p-4 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_36px_rgba(22,50,44,0.08)]"
                 >
-                  <div className={`relative rounded-2xl ${product.tint} p-4`}>
+                  <div className={`rounded-[24px] ${product.tint} p-4`}>
                     <div className="flex items-start justify-between gap-2">
-                      {discount ? (
-                        <span className="rounded-full bg-[var(--danger)] px-2.5 py-1 text-[11px] font-bold text-white">
-                          {discount}% OFF
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-semibold text-[var(--muted)]">
-                          {product.badge}
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        className="rounded-full bg-white/85 p-2 text-[var(--muted)]"
+                      <span
+                        className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
+                          discount
+                            ? "bg-[var(--danger)] text-white"
+                            : "bg-white/85 text-[var(--muted)]"
+                        }`}
                       >
-                        <Icon name="star" className="h-4 w-4" />
-                      </button>
+                        {discount ? `${discount}% off` : product.badge}
+                      </span>
+                      <div className="rounded-full bg-white/88 p-2 text-[var(--accent)]">
+                        <Icon name={categoryIcon(product.category)} className="h-4 w-4" />
+                      </div>
                     </div>
-                    <div className="mt-10 flex h-16 items-center justify-center">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/85 text-[var(--ink)] shadow-sm">
-                        <Icon name={categoryIcon(product.category)} className="h-7 w-7" />
+
+                    <div className="mt-8 flex items-center justify-between">
+                      <div className="rounded-[20px] bg-white/85 px-3 py-2 text-xs font-semibold text-[var(--ink)] shadow-sm">
+                        {product.origin}
+                      </div>
+                      <div className="text-right text-xs text-[var(--muted)]">
+                        <p>{product.eta}</p>
+                        <p>{product.rating.toFixed(1)} rating</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
-                      {product.origin}
-                    </p>
-                    <h3 className="mt-1 min-h-[42px] text-sm font-semibold leading-5 text-[var(--ink)]">
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold leading-6 text-[var(--ink)]">
                       {product.name}
                     </h3>
                     <p className="mt-1 text-sm text-[var(--muted)]">{product.unit}</p>
                   </div>
 
-                  <div className="mt-3 flex items-end justify-between gap-3">
+                  <div className="mt-4 flex items-end justify-between gap-3">
                     <div>
-                      <p className="text-lg font-extrabold text-[var(--ink)]">
+                      <p className="text-2xl font-semibold text-[var(--ink)]">
                         {formatCurrency(product.price)}
                       </p>
                       {product.wasPrice ? (
-                        <p className="text-xs text-[var(--muted)] line-through">
+                        <p className="text-sm text-[var(--muted)] line-through">
                           {formatCurrency(product.wasPrice)}
                         </p>
                       ) : null}
                     </div>
-                    <div className="text-right text-xs text-[var(--muted)]">
-                      <p>{product.eta}</p>
-                      <p>{product.rating.toFixed(1)} / 5</p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onAddToCart(product.id)}
+                      className="rounded-full bg-[var(--ink)] px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Add
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => onAddToCart(product.id)}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-bold text-[var(--ink)]"
-                  >
-                    <Icon name="cart" className="h-4 w-4" />
-                    Add to cart
-                  </button>
                 </article>
               );
             })}
           </div>
-        </div>
+        </article>
       ))}
     </section>
   );

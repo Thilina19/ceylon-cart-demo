@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --page: #f4f5f8;
+  --page: #f2f6f3;
   --surface: #ffffff;
-  --surface-strong: #fffaf0;
-  --ink: #1f252f;
-  --muted: #667085;
-  --line: #e6e8ee;
-  --brand: #ffc629;
-  --brand-deep: #ffb800;
-  --accent: #2d6cdf;
-  --accent-soft: #e8f1ff;
-  --success: #11845b;
-  --danger: #dd3f57;
-  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
-  --font-display: "Segoe UI", "Trebuchet MS", sans-serif;
+  --surface-strong: #f9fcfb;
+  --ink: #16322c;
+  --muted: #6a7e77;
+  --line: #dde8e2;
+  --brand: #f2b63d;
+  --brand-deep: #d59b29;
+  --accent: #1f7a67;
+  --accent-soft: #dff4ec;
+  --success: #12805a;
+  --danger: #d54e55;
+  --font-sans: "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
 }
 
 @theme inline {
@@ -35,8 +35,9 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(255, 198, 41, 0.09), transparent 120px),
-    #f4f5f8;
+    radial-gradient(circle at top left, rgba(31, 122, 103, 0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(242, 182, 61, 0.18), transparent 24%),
+    linear-gradient(180deg, #f7fbf8 0%, #f2f6f3 18%, #eff5f1 100%);
   color: var(--ink);
   font-family: var(--font-sans);
 }
@@ -56,5 +57,5 @@ button {
 }
 
 ::selection {
-  background: rgba(15, 140, 118, 0.2);
+  background: rgba(31, 122, 103, 0.18);
 }
