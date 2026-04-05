@@ -128,6 +128,14 @@ export async function updateProduct(id: string, patch: Partial<Product>) {
   });
 }
 
+export async function deleteProduct(id: string) {
+  return withWriteLock(async (db) => {
+    const originalLength = db.storefront.products.length;
+    db.storefront.products = db.storefront.products.filter((item) => item.id !== id);
+    return db.storefront.products.length !== originalLength;
+  });
+}
+
 export async function getDeliveryZones() {
   const db = await readDb();
   return db.storefront.deliveryZones;
@@ -295,4 +303,17 @@ export async function createOrder(input: {
 export async function getOrders() {
   const db = await readDb();
   return db.orders;
+}
+
+export async function updateOrderStatus(id: string, status: OrderRecord["status"]) {
+  return withWriteLock(async (db) => {
+    const order = db.orders.find((item) => item.id === id);
+
+    if (!order) {
+      return null;
+    }
+
+    order.status = status;
+    return order;
+  });
 }

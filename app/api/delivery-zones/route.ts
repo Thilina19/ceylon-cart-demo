@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAdminSessionActive } from "@/lib/admin-auth";
 import { getDeliveryZones, updateDeliveryZone } from "@/lib/store-db";
 
 export async function GET() {
@@ -8,12 +9,22 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  if (!(await isAdminSessionActive())) {
+    return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
+  }
+
   const body = (await request.json()) as {
     id?: string;
+    name?: string;
+    district?: string;
     radiusKm?: number;
     etaMinutes?: number;
     minOrder?: number;
     active?: boolean;
+    center?: {
+      lat?: number;
+      lng?: number;
+    };
   };
 
   if (!body.id) {
@@ -24,10 +35,13 @@ export async function PUT(request: Request) {
   }
 
   const updated = await updateDeliveryZone(body.id, {
+    name: body.name,
+    district: body.district,
     radiusKm: body.radiusKm,
     etaMinutes: body.etaMinutes,
     minOrder: body.minOrder,
     active: body.active,
+    center: body.center,
   });
 
   if (!updated) {

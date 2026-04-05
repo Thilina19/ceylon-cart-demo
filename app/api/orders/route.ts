@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
+import { isAdminSessionActive } from "@/lib/admin-auth";
 import { normalizeSriLankanPhone } from "@/lib/auth";
 import { createOrder, getOrders } from "@/lib/store-db";
 import type { OrderItemInput } from "@/lib/store-data";
 
 export async function GET() {
+  if (!(await isAdminSessionActive())) {
+    return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
+  }
+
   const orders = await getOrders();
 
   return NextResponse.json({ orders });
