@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getDeliveryZones, updateDeliveryZone } from "@/lib/store-data";
+import { getDeliveryZones, updateDeliveryZone } from "@/lib/store-db";
 
 export async function GET() {
   return NextResponse.json({
-    zones: getDeliveryZones(),
+    zones: await getDeliveryZones(),
   });
 }
 
@@ -23,7 +23,7 @@ export async function PUT(request: Request) {
     );
   }
 
-  const updated = updateDeliveryZone(body.id, {
+  const updated = await updateDeliveryZone(body.id, {
     radiusKm: body.radiusKm,
     etaMinutes: body.etaMinutes,
     minOrder: body.minOrder,
@@ -37,6 +37,6 @@ export async function PUT(request: Request) {
   return NextResponse.json({
     message: "Zone updated.",
     zone: updated,
-    zones: getDeliveryZones(),
+    zones: await getDeliveryZones(),
   });
 }

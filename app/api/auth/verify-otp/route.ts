@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { normalizeSriLankanPhone } from "@/lib/auth";
-import { verifyOtp } from "@/lib/otp-store";
+import { verifyOtp } from "@/lib/store-db";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = verifyOtp(normalizedPhone, code);
+  const result = await verifyOtp(normalizedPhone, code);
 
   if (!result.ok) {
     return NextResponse.json({ message: result.message }, { status: 400 });

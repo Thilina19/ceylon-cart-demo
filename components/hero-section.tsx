@@ -1,6 +1,5 @@
 import Image from "next/image";
-import type { DeliveryZone } from "@/lib/store-data";
-import { categories } from "@/lib/store-data";
+import type { Category, DeliveryZone, PromoCard } from "@/lib/store-data";
 import { Icon, LogoMark } from "@/components/icons";
 
 type ServiceabilityState = {
@@ -15,55 +14,46 @@ type ServiceabilityState = {
 type HeroSectionProps = {
   activeCategory: string;
   cartCount: number;
+  categories: Category[];
+  highlightPills: string[];
   locating: boolean;
   locationLabel: string;
   locationError: string;
+  promoCards: PromoCard[];
   query: string;
   registeredUserName?: string;
   serviceability: ServiceabilityState | null;
   zones: DeliveryZone[];
   onCategoryChange: (value: string) => void;
   onGpsCheck: () => void;
+  onOpenCheckout: () => void;
   onOpenAuth: () => void;
   onQueryChange: (value: string) => void;
   onSampleZoneCheck: (zone: DeliveryZone) => void;
 };
 
-const featureCategories = [
-  {
-    id: "produce",
-    title: "Today at the market",
-    subtitle: "Fresh greens, fruit, and vegetables",
-  },
-  {
-    id: "seafood",
-    title: "Seafood and meat",
-    subtitle: "Prepared for easy cooking at home",
-  },
-  {
-    id: "pantry",
-    title: "Pantry classics",
-    subtitle: "Rice, dhal, coconut milk, tea, and more",
-  },
-];
-
 export function HeroSection({
   activeCategory,
   cartCount,
+  categories,
+  highlightPills,
   locating,
   locationLabel,
   locationError,
+  promoCards,
   query,
   registeredUserName,
   serviceability,
   zones,
   onCategoryChange,
   onGpsCheck,
+  onOpenCheckout,
   onOpenAuth,
   onQueryChange,
   onSampleZoneCheck,
 }: HeroSectionProps) {
   const liveZones = zones.filter((zone) => zone.active).slice(0, 3);
+  const spotlightCards = promoCards.slice(0, 3);
 
   return (
     <>
@@ -119,9 +109,13 @@ export function HeroSection({
                 {registeredUserName ?? "Sign in"}
               </button>
 
-              <div className="rounded-full bg-[var(--ink)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(22,50,44,0.18)]">
+              <button
+                type="button"
+                onClick={onOpenCheckout}
+                className="rounded-full bg-[var(--ink)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(22,50,44,0.18)]"
+              >
                 Basket {cartCount}
-              </div>
+              </button>
             </div>
           </div>
 
@@ -191,15 +185,36 @@ export function HeroSection({
                 Check delivery area
               </button>
             </div>
+
+            {highlightPills.length ? (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {highlightPills.map((pill) => (
+                  <span
+                    key={pill}
+                    className="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/84 backdrop-blur"
+                  >
+                    {pill}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="grid gap-4 self-end">
             <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-1">
-              {featureCategories.map((item, index) => (
+              {spotlightCards.map((item, index) => (
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => onCategoryChange(item.id)}
+                  onClick={() => {
+                    if (index === 0) {
+                      onCategoryChange("produce");
+                    } else if (index === 1) {
+                      onGpsCheck();
+                    } else {
+                      onCategoryChange("pantry");
+                    }
+                  }}
                   className={`rounded-[30px] px-5 py-5 text-left text-white backdrop-blur transition hover:-translate-y-1 ${
                     index === 0
                       ? "bg-[rgba(242,182,61,0.88)] text-[var(--ink)]"
@@ -207,10 +222,11 @@ export function HeroSection({
                   }`}
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] opacity-75">
-                    Featured aisle
+                    {item.eyebrow}
                   </p>
                   <p className="mt-3 text-xl font-semibold">{item.title}</p>
-                  <p className="mt-2 text-sm leading-6 opacity-82">{item.subtitle}</p>
+                  <p className="mt-2 text-sm leading-6 opacity-82">{item.description}</p>
+                  <p className="mt-4 text-sm font-semibold opacity-82">{item.metric}</p>
                 </button>
               ))}
             </div>

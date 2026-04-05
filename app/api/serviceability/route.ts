@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { evaluateServiceability } from "@/lib/geo";
-import { getDeliveryZones } from "@/lib/store-data";
+import { getDeliveryZones } from "@/lib/store-db";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const zones = getDeliveryZones();
+  const zones = await getDeliveryZones();
   const result = evaluateServiceability(
     { lat: body.lat, lng: body.lng },
     zones,

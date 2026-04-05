@@ -4,10 +4,14 @@ import { useDeferredValue, useEffect, useState, useTransition } from "react";
 import { AuthModal } from "@/components/auth-modal";
 import { BackendSection } from "@/components/backend-section";
 import { CatalogSection } from "@/components/catalog-section";
+import { CheckoutSheet } from "@/components/checkout-sheet";
 import { FooterCta } from "@/components/footer-cta";
 import { HeroSection } from "@/components/hero-section";
-import { products, type DeliveryZone } from "@/lib/store-data";
-import type { RegisteredUser } from "@/lib/otp-store";
+import type {
+  DeliveryZone,
+  RegisteredUser,
+  StorefrontData,
+} from "@/lib/store-data";
 
 type ServiceabilityState = {
   eligible: boolean;
@@ -20,12 +24,22 @@ type ServiceabilityState = {
 
 type AuthPhase = "details" | "verify";
 
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-LK", {
+    style: "currency",
+    currency: "LKR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export function Storefront() {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [activeCategory, setActiveCategory] = useState("all");
   const [cart, setCart] = useState<Record<string, number>>({});
-  const [zones, setZones] = useState<DeliveryZone[]>([]);
+  const [storefront, setStorefront] = useState<StorefrontData | null>(null);
+  const [storeError, setStoreError] = useState("");
+  const [storeLoading, setStoreLoading] = useState(true);
   const [serviceability, setServiceability] = useState<ServiceabilityState | null>(
     null,
   );
@@ -42,7 +56,14 @@ export function Storefront() {
   const [authMessage, setAuthMessage] = useState("");
   const [otpPreview, setOtpPreview] = useState("");
   const [registeredUser, setRegisteredUser] = useState<RegisteredUser | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutName, setCheckoutName] = useState("");
+  const [checkoutPhone, setCheckoutPhone] = useState("");
+  const [checkoutAddress, setCheckoutAddress] = useState("");
+  const [checkoutNote, setCheckoutNote] = useState("");
+  const [checkoutMessage, setCheckoutMessage] = useState("");
   const [isAuthPending, startAuthTransition] = useTransition();
+  const [isCheckoutPending, startCheckoutTransition] = useTransition();
 
   useEffect(() => {
     const savedUser = window.localStorage.getItem("ceylon-cart-user");
@@ -51,15 +72,58 @@ export function Storefront() {
       setRegisteredUser(JSON.parse(savedUser) as RegisteredUser);
     }
 
-    void fetch("/api/delivery-zones")
-      .then((response) => response.json())
-      .then((payload: { zones: DeliveryZone[] }) => {
-        setZones(payload.zones);
+    void fetch("/api/store")
+      .then(async (response) => {
+        const payload = (await response.json()) as StorefrontData & {
+          message?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.message ?? "The storefront data could not be loaded.");
+        }
+
+        setStorefront(payload);
+        setStoreError("");
       })
-      .catch(() => {
-        setZones([]);
+      .catch((error: unknown) => {
+        setStorefront(null);
+        setStoreError(
+          error instanceof Error
+            ? error.message
+            : "The storefront data could not be loaded.",
+        );
+      })
+      .finally(() => {
+        setStoreLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (!registeredUser) {
+      return;
+    }
+
+    setCheckoutName((current) => current || registeredUser.name);
+    setCheckoutPhone((current) => current || registeredUser.phone);
+  }, [registeredUser]);
+
+  useEffect(() => {
+    const categories = storefront?.categories ?? [];
+
+    if (!categories.length) {
+      return;
+    }
+
+    if (!categories.some((category) => category.id === activeCategory)) {
+      setActiveCategory("all");
+    }
+  }, [activeCategory, storefront]);
+
+  const categories = storefront?.categories ?? [];
+  const promoCards = storefront?.promoCards ?? [];
+  const highlightPills = storefront?.highlightPills ?? [];
+  const products = storefront?.products ?? [];
+  const zones = storefront?.deliveryZones ?? [];
 
   const visibleProducts = products.filter((product) => {
     const text = deferredQuery.trim().toLowerCase();
@@ -74,12 +138,44 @@ export function Storefront() {
     return categoryMatches && queryMatches;
   });
 
+  const cartItems = products
+    .filter((product) => (cart[product.id] ?? 0) > 0)
+    .map((product) => ({
+      id: product.id,
+      name: product.name,
+      quantity: cart[product.id],
+      unit: product.unit,
+      unitPrice: product.price,
+      lineTotal: product.price * cart[product.id],
+    }));
+
   const cartCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0);
+  const deliveryFee = subtotal === 0 ? 0 : subtotal >= 5000 ? 0 : 350;
+  const total = subtotal + deliveryFee;
+
   function addToCart(productId: string) {
     setCart((current) => ({
       ...current,
       [productId]: (current[productId] ?? 0) + 1,
     }));
+    setCheckoutMessage("");
+  }
+
+  function updateCartQuantity(productId: string, quantity: number) {
+    setCart((current) => {
+      if (quantity <= 0) {
+        const nextCart = { ...current };
+        delete nextCart[productId];
+        return nextCart;
+      }
+
+      return {
+        ...current,
+        [productId]: quantity,
+      };
+    });
+    setCheckoutMessage("");
   }
 
   function runServiceabilityCheck(lat: number, lng: number, label: string) {
@@ -211,6 +307,8 @@ export function Storefront() {
           "ceylon-cart-user",
           JSON.stringify(payload.user),
         );
+        setCheckoutName(payload.user.name);
+        setCheckoutPhone(payload.user.phone);
         setAuthMessage(payload.message ?? "Registration complete.");
         setAuthOpen(false);
         setOtp("");
@@ -222,20 +320,104 @@ export function Storefront() {
     });
   }
 
+  function submitOrder() {
+    startCheckoutTransition(async () => {
+      setCheckoutMessage("");
+
+      try {
+        const response = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerName: checkoutName,
+            phone: checkoutPhone,
+            address: checkoutAddress,
+            note: checkoutNote,
+            zoneId: serviceability?.zone?.id ?? null,
+            items: cartItems.map((item) => ({
+              productId: item.id,
+              quantity: item.quantity,
+            })),
+          }),
+        });
+
+        const payload = (await response.json()) as {
+          message?: string;
+          order?: {
+            id: string;
+            total: number;
+          };
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.message ?? "Could not place the order.");
+        }
+
+        setCart({});
+        setCheckoutNote("");
+        setCheckoutMessage(
+          payload.order
+            ? `Order ${payload.order.id.slice(0, 8).toUpperCase()} placed successfully. Total ${formatCurrency(payload.order.total)}.`
+            : payload.message ?? "Order placed successfully.",
+        );
+      } catch (error) {
+        setCheckoutMessage(
+          error instanceof Error ? error.message : "Could not place the order.",
+        );
+      }
+    });
+  }
+
+  if (storeLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="rounded-[32px] bg-white px-8 py-6 text-center shadow-[0_18px_42px_rgba(22,50,44,0.06)]">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            Loading store
+          </p>
+          <p className="mt-3 text-lg text-[var(--ink)]">
+            Preparing the latest aisles, offers, and delivery areas.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!storefront) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="max-w-lg rounded-[32px] bg-white px-8 py-6 text-center shadow-[0_18px_42px_rgba(22,50,44,0.06)]">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            Store unavailable
+          </p>
+          <p className="mt-3 text-lg text-[var(--ink)]">
+            {storeError || "The storefront could not be loaded right now."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <HeroSection
         activeCategory={activeCategory}
         cartCount={cartCount}
+        categories={categories}
+        highlightPills={highlightPills}
         locating={locating}
         locationError={locationError}
         locationLabel={locationLabel}
+        promoCards={promoCards}
         query={query}
         registeredUserName={registeredUser?.name}
         serviceability={serviceability}
         zones={zones}
         onCategoryChange={setActiveCategory}
         onGpsCheck={handleGpsCheck}
+        onOpenCheckout={() => setCheckoutOpen(true)}
         onOpenAuth={() => {
           setAuthOpen(true);
           setAuthPhase("details");
@@ -277,6 +459,28 @@ export function Storefront() {
         onRequestOtp={requestOtp}
         onVerifyOtp={verifyOtpCode}
         onEditNumber={() => setAuthPhase("details")}
+      />
+
+      <CheckoutSheet
+        open={checkoutOpen}
+        items={cartItems}
+        subtotal={subtotal}
+        total={total}
+        serviceabilityZone={serviceability?.zone ?? null}
+        registeredUser={registeredUser}
+        name={checkoutName}
+        phone={checkoutPhone}
+        address={checkoutAddress}
+        note={checkoutNote}
+        message={checkoutMessage}
+        pending={isCheckoutPending}
+        onClose={() => setCheckoutOpen(false)}
+        onNameChange={setCheckoutName}
+        onPhoneChange={setCheckoutPhone}
+        onAddressChange={setCheckoutAddress}
+        onNoteChange={setCheckoutNote}
+        onQuantityChange={updateCartQuantity}
+        onSubmit={submitOrder}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { normalizeSriLankanPhone } from "@/lib/auth";
-import { issueOtp } from "@/lib/otp-store";
+import { issueOtp } from "@/lib/store-db";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -28,10 +28,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const otp = issueOtp(trimmedName, normalizedPhone);
+  const otp = await issueOtp(trimmedName, normalizedPhone);
 
   return NextResponse.json({
-    message: "OTP generated. Connect an SMS provider to send it in production.",
+    message: "Verification code generated.",
     normalizedPhone,
     otpPreview: otp.code,
     expiresAt: otp.expiresAt,

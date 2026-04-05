@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { products } from "@/lib/store-data";
+import type { Product } from "@/lib/store-data";
 import { Icon } from "@/components/icons";
 
 function formatCurrency(amount: number) {
@@ -12,7 +12,7 @@ function formatCurrency(amount: number) {
 
 type CatalogSectionProps = {
   activeCategory: string;
-  visibleProducts: typeof products;
+  visibleProducts: Product[];
   onAddToCart: (productId: string) => void;
   onCategoryChange: (value: string) => void;
 };
@@ -36,7 +36,7 @@ function categoryIcon(category: string) {
   }
 }
 
-function buildRows(visibleProducts: typeof products) {
+function buildRows(visibleProducts: Product[]) {
   const fresh = visibleProducts.filter(
     (product) => product.category === "produce" || product.category === "seafood",
   );
@@ -87,7 +87,7 @@ export function CatalogSection({
   onAddToCart,
   onCategoryChange,
 }: CatalogSectionProps) {
-  const rows = buildRows(visibleProducts);
+  const rows = visibleProducts.length ? buildRows(visibleProducts) : [];
 
   return (
     <section className="space-y-10">
@@ -101,6 +101,17 @@ export function CatalogSection({
           >
             Clear filter
           </button>
+        </div>
+      ) : null}
+
+      {!visibleProducts.length ? (
+        <div className="rounded-[32px] bg-white px-6 py-10 text-center shadow-[0_18px_42px_rgba(22,50,44,0.06)]">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            No products found
+          </p>
+          <p className="mt-3 text-lg text-[var(--ink)]">
+            Try another search term or switch back to all aisles.
+          </p>
         </div>
       ) : null}
 

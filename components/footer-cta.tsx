@@ -1,5 +1,5 @@
 import { maskPhone } from "@/lib/auth";
-import type { RegisteredUser } from "@/lib/otp-store";
+import type { RegisteredUser } from "@/lib/store-data";
 
 type FooterCtaProps = {
   registeredUser: RegisteredUser | null;
