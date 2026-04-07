@@ -14,8 +14,8 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <p className="text-base font-semibold text-white">{title}</p>
-      <div className="mt-3 space-y-2 text-sm text-white/72">
+      <p className="text-sm font-bold text-[#2a2a2a]">{title}</p>
+      <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
         {items.map((item) => (
           <p key={item}>{item}</p>
         ))}
@@ -26,29 +26,34 @@ function FooterColumn({
 
 export function FooterCta({ registeredUser }: FooterCtaProps) {
   return (
-    <footer className="rounded-[36px] bg-[linear-gradient(135deg,#0f2420,#17342e)] px-6 py-8 text-white shadow-[0_24px_48px_rgba(22,50,44,0.18)]">
-      <div className="grid gap-8 xl:grid-cols-[1fr_1fr]">
+    <footer className="rounded-[22px] border border-[var(--line)] bg-white px-5 py-7 shadow-[0_10px_28px_rgba(0,0,0,0.05)] lg:px-6">
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/58">
-            Ceylon Cart
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-black/42">
+            CeylonCart supermarket
           </p>
-          <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold tracking-tight">
-            Groceries designed to feel effortless.
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] text-[#2a2a2a]">
+            Easy weekly grocery shopping.
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/76">
-            A more visual and shopper-friendly grocery storefront for fresh finds, pantry staples, and easy weekly reorders.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+            Fresh produce, pantry staples, bakery items, chilled groceries, and
+            household picks in a cleaner shopping flow.
           </p>
 
-          <div className="mt-5 rounded-[24px] bg-white/8 p-4 text-sm text-white/80">
+          <div className="mt-5 rounded-[18px] bg-[#f7f7fa] px-4 py-4 text-sm text-[var(--muted)]">
             {registeredUser ? (
               <>
-                <p className="font-semibold text-white">Signed in as {registeredUser.name}</p>
+                <p className="font-semibold text-[#2a2a2a]">
+                  Signed in as {registeredUser.name}
+                </p>
                 <p className="mt-1">{maskPhone(registeredUser.phone)}</p>
               </>
             ) : (
               <>
-                <p className="font-semibold text-white">Sign in for a smoother checkout</p>
-                <p className="mt-1">Save your address, manage orders, and keep your basket ready.</p>
+                <p className="font-semibold text-[#2a2a2a]">Fast checkout</p>
+                <p className="mt-1">
+                  Sign in to save your profile and make repeat grocery orders faster.
+                </p>
               </>
             )}
           </div>
@@ -57,15 +62,15 @@ export function FooterCta({ registeredUser }: FooterCtaProps) {
         <div className="grid gap-6 sm:grid-cols-3">
           <FooterColumn
             title="Shop"
-            items={["Fresh produce", "Bakery", "Dairy", "Home care"]}
+            items={["Fresh produce", "Bakery", "Dairy & eggs", "Home care"]}
           />
           <FooterColumn
             title="Support"
-            items={["Delivery help", "Returns", "Contact us", "Order tracking"]}
+            items={["Order tracking", "Help center", "Returns", "Contact us"]}
           />
           <FooterColumn
-            title="Company"
-            items={["About", "Careers", "Privacy", "Terms"]}
+            title="About"
+            items={["About us", "Careers", "Terms", "Privacy"]}
           />
         </div>
       </div>

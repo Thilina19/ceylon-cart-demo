@@ -146,9 +146,9 @@ export const promoCardsSeed: PromoCard[] = [
 
 export const announcementBannerSeed: AnnouncementBanner = {
   active: true,
-  text: "Free delivery above LKR 5,000 across selected Colombo zones this week.",
-  ctaLabel: "See coverage",
-  ctaHref: "#coverage",
+  text: "Free delivery above LKR 5,000 on this week's supermarket orders.",
+  ctaLabel: "Shop now",
+  ctaHref: "#top",
 };
 
 export const promoPopupSeed: PromoPopup = {
@@ -165,11 +165,11 @@ export const promoPopupSeed: PromoPopup = {
 };
 
 export const highlightPillsSeed = [
-  "Express delivery",
+  "Supermarket deals",
   "Daily deals",
   "Fresh arrivals",
   "Best sellers",
-  "Weekly basket savings",
+  "Weekly savings",
 ];
 
 export const productsSeed: Product[] = [

@@ -2,7 +2,6 @@
 
 import { useDeferredValue, useEffect, useState, useTransition } from "react";
 import { AuthModal } from "@/components/auth-modal";
-import { BackendSection } from "@/components/backend-section";
 import { CatalogSection } from "@/components/catalog-section";
 import { CheckoutSheet } from "@/components/checkout-sheet";
 import { FooterCta } from "@/components/footer-cta";
@@ -44,10 +43,6 @@ export function Storefront() {
   const [serviceability, setServiceability] = useState<ServiceabilityState | null>(
     null,
   );
-  const [locationLabel, setLocationLabel] = useState(
-    "Use GPS to check if your address qualifies for 1-hour delivery.",
-  );
-  const [locationError, setLocationError] = useState("");
   const [locating, setLocating] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authPhase, setAuthPhase] = useState<AuthPhase>("details");
@@ -128,8 +123,8 @@ export function Storefront() {
   const highlightPills = storefront?.highlightPills ?? [];
   const products = storefront?.products ?? [];
   const zones = storefront?.deliveryZones ?? [];
-  const selectedZoneId = serviceability?.zone?.id ?? null;
-  const selectedZoneName = serviceability?.zone?.name ?? null;
+  const defaultZone = zones.find((zone) => zone.active) ?? null;
+  const selectedZoneId = serviceability?.zone?.id ?? defaultZone?.id ?? null;
 
   const zoneProducts = selectedZoneId
     ? products.filter(
@@ -204,8 +199,6 @@ export function Storefront() {
   }
 
   function runServiceabilityCheck(lat: number, lng: number, label: string) {
-    setLocationError("");
-    setLocationLabel(label);
     setLocating(true);
 
     void fetch("/api/serviceability", {
@@ -228,11 +221,7 @@ export function Storefront() {
       })
       .catch((error: unknown) => {
         setServiceability(null);
-        setLocationError(
-          error instanceof Error
-            ? error.message
-            : "Unable to check serviceability right now.",
-        );
+        console.error(label, error);
       })
       .finally(() => {
         setLocating(false);
@@ -241,11 +230,9 @@ export function Storefront() {
 
   function handleGpsCheck() {
     if (!navigator.geolocation) {
-      setLocationError("This browser does not support GPS lookups.");
       return;
     }
 
-    setLocationError("");
     setLocating(true);
 
     navigator.geolocation.getCurrentPosition(
@@ -258,9 +245,6 @@ export function Storefront() {
       },
       () => {
         setLocating(false);
-        setLocationError(
-          "Location access was blocked. You can still try one of the sample delivery hubs below.",
-        );
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -436,7 +420,7 @@ export function Storefront() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div id="top" className="min-h-screen">
       <HeroSection
         activeCategory={activeCategory}
         announcementBanner={
@@ -451,13 +435,10 @@ export function Storefront() {
         categories={categories}
         highlightPills={highlightPills}
         locating={locating}
-        locationError={locationError}
-        locationLabel={locationLabel}
         promoCards={promoCards}
         query={query}
         registeredUserName={registeredUser?.name}
         serviceability={serviceability}
-        zones={zones}
         onCategoryChange={setActiveCategory}
         onGpsCheck={handleGpsCheck}
         onOpenCheckout={() => setCheckoutOpen(true)}
@@ -466,26 +447,16 @@ export function Storefront() {
           setAuthPhase("details");
         }}
         onQueryChange={setQuery}
-        onSampleZoneCheck={(zone) =>
-          runServiceabilityCheck(
-            zone.center.lat,
-            zone.center.lng,
-            `Checking delivery from the ${zone.name} sample point.`,
-          )
-        }
       />
 
-      <main className="mx-auto flex max-w-[1440px] flex-col gap-8 px-4 py-6 lg:px-8 lg:py-8">
+      <main className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 pb-8 lg:px-6 lg:pb-10">
         <CatalogSection
           activeCategory={activeCategory}
           categories={categories}
-          locationReady={Boolean(selectedZoneId)}
-          selectedZoneName={selectedZoneName}
           visibleProducts={visibleProducts}
           onAddToCart={addToCart}
           onCategoryChange={setActiveCategory}
         />
-        <BackendSection zones={zones} />
         <FooterCta registeredUser={registeredUser} />
       </main>
 

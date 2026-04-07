@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { Category, Product } from "@/lib/store-data";
 import { Icon } from "@/components/icons";
 
@@ -30,9 +29,11 @@ function categoryIcon(category: string) {
 }
 
 function ProductCard({
+  compact = false,
   product,
   onAddToCart,
 }: {
+  compact?: boolean;
   product: Product;
   onAddToCart: (productId: string) => void;
 }) {
@@ -42,63 +43,88 @@ function ProductCard({
       : null;
 
   return (
-    <article className="group rounded-[28px] border border-white/45 bg-white/62 p-4 shadow-[0_16px_40px_rgba(31,70,61,0.08)] backdrop-blur-xl transition hover:-translate-y-1">
-      <div className={`rounded-[24px] ${product.tint} p-5`}>
-        <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full bg-white/76 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
+    <article className="group rounded-[18px] border border-[var(--line)] bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)]">
+      <div className={`relative overflow-hidden rounded-[16px] ${compact ? "p-4" : "p-5"} ${product.tint}`}>
+        <div className="flex items-start justify-between gap-3">
+          <span className="rounded-full bg-white/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#0e7a5f]">
             {product.badge}
           </span>
-          <div className="rounded-full bg-white/76 p-2 text-[var(--accent)]">
-            <Icon name={categoryIcon(product.category)} className="h-4 w-4" />
+          {discount ? (
+            <span className="rounded-full bg-[#fff2b8] px-2.5 py-1 text-[10px] font-bold text-[#5d4b00]">
+              {discount}% OFF
+            </span>
+          ) : null}
+        </div>
+        <div className={`flex items-center justify-center ${compact ? "h-20" : "h-28"}`}>
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/72 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.5)]">
+            <Icon
+              name={categoryIcon(product.category)}
+              className="h-8 w-8 text-[#1f1f1f]"
+            />
           </div>
         </div>
-        <div className="mt-8 h-20 rounded-[20px] bg-white/40" />
       </div>
 
-      <div className="mt-4">
-        <h3 className="text-base font-semibold leading-6 text-[var(--ink)]">
+      <div className="mt-3">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-5 text-[#2a2a2a]">
           {product.name}
         </h3>
-        <div className="mt-2 flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
-          <span>{product.unit}</span>
-          <span>{product.rating.toFixed(1)} rating</span>
-        </div>
+        <p className="mt-1 text-xs text-[var(--muted)]">{product.unit}</p>
       </div>
 
-      <div className="mt-4 flex items-end justify-between gap-3">
+      <div className="mt-3 flex items-end justify-between gap-2">
         <div>
-          <p className="text-xl font-semibold text-[var(--ink)]">
+          <p className="text-base font-bold text-[#202020]">
             {formatCurrency(product.price)}
           </p>
           {product.wasPrice ? (
-            <p className="text-sm text-[var(--muted)] line-through">
+            <p className="text-xs text-[var(--muted)] line-through">
               {formatCurrency(product.wasPrice)}
             </p>
-          ) : null}
+          ) : (
+            <p className="text-xs text-[var(--muted)]">Inclusive of VAT</p>
+          )}
         </div>
-        {discount ? (
-          <span className="rounded-full bg-[var(--ink)] px-3 py-1 text-xs font-semibold text-white">
-            {discount}% off
-          </span>
-        ) : null}
+        <button
+          type="button"
+          onClick={() => onAddToCart(product.id)}
+          className="rounded-lg bg-[#0f9d68] px-3 py-2 text-xs font-semibold text-white transition group-hover:bg-[#0d885a]"
+        >
+          Add
+        </button>
       </div>
-
-      <button
-        type="button"
-        onClick={() => onAddToCart(product.id)}
-        className="mt-4 w-full rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-[var(--ink)]"
-      >
-        Add to basket
-      </button>
     </article>
+  );
+}
+
+function SectionHeading({
+  actionLabel,
+  title,
+  onAction,
+}: {
+  actionLabel?: string;
+  title: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 className="text-lg font-bold text-[#2a2a2a] sm:text-xl">{title}</h2>
+      {actionLabel ? (
+        <button
+          type="button"
+          onClick={onAction}
+          className="text-sm font-semibold text-[#0f9d68]"
+        >
+          {actionLabel}
+        </button>
+      ) : null}
+    </div>
   );
 }
 
 type CatalogSectionProps = {
   activeCategory: string;
   categories: Category[];
-  locationReady: boolean;
-  selectedZoneName: string | null;
   visibleProducts: Product[];
   onAddToCart: (productId: string) => void;
   onCategoryChange: (value: string) => void;
@@ -107,8 +133,6 @@ type CatalogSectionProps = {
 export function CatalogSection({
   activeCategory,
   categories,
-  locationReady,
-  selectedZoneName,
   visibleProducts,
   onAddToCart,
   onCategoryChange,
@@ -117,37 +141,24 @@ export function CatalogSection({
   const featuredProducts = visibleProducts.slice(0, 6);
   const bestSellers = [...visibleProducts]
     .sort((left, right) => right.rating - left.rating)
-    .slice(0, 8);
-  const produceProducts = visibleProducts.filter((product) => product.category === "produce").slice(0, 4);
-  const pantryProducts = visibleProducts.filter((product) => product.category === "pantry").slice(0, 4);
-  const chilledProducts = visibleProducts
-    .filter((product) => product.category === "dairy" || product.category === "beverages")
+    .slice(0, 5);
+  const topSale = visibleProducts.slice(0, 4);
+  const topRated = [...visibleProducts]
+    .sort((left, right) => right.rating - left.rating)
     .slice(0, 4);
+  const pantryPicks = visibleProducts
+    .filter((product) => product.category === "pantry" || product.category === "home")
+    .slice(0, 4);
+  const beveragePicks = visibleProducts
+    .filter((product) => product.category === "beverages" || product.category === "dairy")
+    .slice(0, 4);
+  const appShowcase = visibleProducts.slice(0, 3);
 
   return (
-    <section className="space-y-8">
-      <div className="rounded-[34px] border border-white/50 bg-white/58 p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-              Explore categories
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
-              Shop by aisle
-            </h2>
-          </div>
-          {locationReady ? (
-            <div className="rounded-full bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)]">
-              Showing products for {selectedZoneName}
-            </div>
-          ) : (
-            <div className="rounded-full bg-[#fff6da] px-4 py-2 text-sm font-semibold text-[var(--brand-deep)]">
-              Use GPS to load products for your area
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
+    <section className="space-y-6">
+      <section className="rounded-[22px] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
+        <SectionHeading title="Explore Categories" />
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
           {browseCategories.map((category) => {
             const active = activeCategory === category.id;
 
@@ -156,241 +167,207 @@ export function CatalogSection({
                 key={category.id}
                 type="button"
                 onClick={() => onCategoryChange(category.id)}
-                className={`rounded-[24px] border px-4 py-5 text-left transition ${
+                className={`rounded-[18px] border p-4 text-left transition ${
                   active
-                    ? "border-[var(--accent)] bg-[var(--accent-soft)]"
-                    : "border-white/50 bg-white/70"
+                    ? "border-[#0f9d68] bg-[#eff9f4]"
+                    : "border-[var(--line)] bg-[#fafafa]"
                 }`}
               >
-                <div className="inline-flex rounded-full bg-white p-3 text-[var(--accent)] shadow-sm">
-                  <Icon name={categoryIcon(category.id)} className="h-5 w-5" />
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_8px_18px_rgba(0,0,0,0.05)]">
+                  <Icon
+                    name={categoryIcon(category.id)}
+                    className="h-5 w-5 text-[#0f9d68]"
+                  />
                 </div>
-                <p className="mt-4 text-sm font-semibold text-[var(--ink)]">
+                <p className="mt-3 text-sm font-semibold text-[#2a2a2a]">
                   {category.name}
                 </p>
               </button>
             );
           })}
         </div>
-      </div>
+      </section>
 
-      {!locationReady ? (
-        <div className="overflow-hidden rounded-[36px] border border-white/45 bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(212,245,236,0.55))] p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                Location first
-              </p>
-              <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--ink)]">
-                We only show products available for your delivery area.
-              </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--muted)]">
-                Turn on GPS from the top of the page, and the store will instantly filter to the products that can actually be delivered to you.
-              </p>
-            </div>
-            <div className="relative min-h-[240px] overflow-hidden rounded-[28px]">
-              <Image
-                src="https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1200&q=80"
-                alt="Fresh produce assortment"
-                fill
-                sizes="(max-width: 1023px) 100vw, 40vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,28,24,0.04)_0%,rgba(11,28,24,0.45)_100%)]" />
-            </div>
-          </div>
+      <section className="rounded-[22px] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
+        <SectionHeading
+          title="Featured Products"
+          actionLabel={activeCategory !== "all" ? "Clear filter" : undefined}
+          onAction={activeCategory !== "all" ? () => onCategoryChange("all") : undefined}
+        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {featuredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={onAddToCart}
+            />
+          ))}
         </div>
-      ) : null}
+      </section>
 
-      {locationReady ? (
-        <>
-          <div className="rounded-[34px] border border-white/50 bg-white/58 p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                  Featured products
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
-                  Fresh picks for your basket
-                </h2>
-              </div>
-              {activeCategory !== "all" ? (
-                <button
-                  type="button"
-                  onClick={() => onCategoryChange("all")}
-                  className="rounded-full bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--muted)]"
+      <section className="grid gap-4 lg:grid-cols-2">
+        <article className="overflow-hidden rounded-[22px] bg-[#fff4d1] p-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
+            Free delivery over 5000
+          </p>
+          <h3 className="mt-3 text-3xl font-black tracking-[-0.04em] text-[#2a2a2a]">
+            Build a weekly basket and save more.
+          </h3>
+          <p className="mt-3 max-w-md text-sm leading-6 text-black/58">
+            Stock pantry essentials, bakery items, and home care products in one order.
+          </p>
+          <button
+            type="button"
+            onClick={() => onCategoryChange("pantry")}
+            className="mt-5 rounded-lg bg-[#0f9d68] px-5 py-3 text-sm font-semibold text-white"
+          >
+            Shop now
+          </button>
+        </article>
+
+        <article className="overflow-hidden rounded-[22px] bg-[#dff5ec] p-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
+            Organic picks
+          </p>
+          <h3 className="mt-3 text-3xl font-black tracking-[-0.04em] text-[#2a2a2a]">
+            Fresh finds for everyday cooking.
+          </h3>
+          <p className="mt-3 max-w-md text-sm leading-6 text-black/58">
+            Produce, chilled basics, and easy add-ons selected for fast home shopping.
+          </p>
+          <button
+            type="button"
+            onClick={() => onCategoryChange("produce")}
+            className="mt-5 rounded-lg bg-white/75 px-5 py-3 text-sm font-semibold text-[#1f1f1f] backdrop-blur-sm"
+          >
+            View fresh picks
+          </button>
+        </article>
+      </section>
+
+      <section className="rounded-[22px] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
+        <SectionHeading title="Daily Best Sells" actionLabel="View all" onAction={() => onCategoryChange("all")} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {bestSellers.map((product) => (
+            <ProductCard
+              key={product.id}
+              compact
+              product={product}
+              onAddToCart={onAddToCart}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-4">
+        {[
+          { title: "Top Sale", items: topSale, target: "all" },
+          { title: "Top Rated", items: topRated, target: "all" },
+          { title: "Pantry Picks", items: pantryPicks, target: "pantry" },
+          { title: "Beverage Picks", items: beveragePicks, target: "beverages" },
+        ].map((group) => (
+          <article
+            key={group.title}
+            className="rounded-[22px] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.05)]"
+          >
+            <SectionHeading
+              title={group.title}
+              actionLabel="View all"
+              onAction={() => onCategoryChange(group.target)}
+            />
+            <div className="space-y-3">
+              {group.items.map((product) => (
+                <div
+                  key={`${group.title}-${product.id}`}
+                  className="flex items-center gap-3 rounded-[16px] border border-[var(--line)] p-3"
                 >
-                  Clear filter
-                </button>
-              ) : null}
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {featuredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={onAddToCart}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-            <div className="overflow-hidden rounded-[34px] border border-white/50 bg-[linear-gradient(120deg,rgba(224,250,241,0.84),rgba(255,255,255,0.68))] p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                Weekly deal
-              </p>
-              <h3 className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-[var(--ink)]">
-                Free delivery over LKR 5,000
-              </h3>
-              <p className="mt-3 max-w-md text-sm leading-7 text-[var(--muted)]">
-                Build one complete basket and unlock better value across pantry, produce, and home care.
-              </p>
-              <button
-                type="button"
-                onClick={() => onCategoryChange("pantry")}
-                className="mt-5 rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
-              >
-                Shop now
-              </button>
-            </div>
-
-            <div className="overflow-hidden rounded-[34px] border border-white/50 bg-[linear-gradient(120deg,rgba(255,250,229,0.86),rgba(255,255,255,0.68))] p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--brand-deep)]">
-                Organic selection
-              </p>
-              <h3 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--ink)]">
-                Clean, simple grocery shopping
-              </h3>
-              <p className="mt-3 max-w-md text-sm leading-7 text-[var(--muted)]">
-                Fewer distractions, faster browsing, and only the products your delivery hub can actually fulfill.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-[34px] border border-white/50 bg-white/58 p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                  Daily best sells
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
-                  Fast-moving items in your area
-                </h2>
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {bestSellers.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={onAddToCart}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-3">
-            {[
-              { title: "Top sale", products: produceProducts, category: "produce" },
-              { title: "Pantry picks", products: pantryProducts, category: "pantry" },
-              { title: "Daily chilled", products: chilledProducts, category: "dairy" },
-            ].map((group) => (
-              <section
-                key={group.title}
-                className="rounded-[34px] border border-white/50 bg-white/58 p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                      {group.title}
+                  <div
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] ${product.tint}`}
+                  >
+                    <Icon
+                      name={categoryIcon(product.category)}
+                      className="h-6 w-6 text-[#1f1f1f]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-[#2a2a2a]">
+                      {product.name}
                     </p>
-                    <h3 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
-                      {categories.find((category) => category.id === group.category)?.name}
-                    </h3>
+                    <p className="mt-1 text-xs text-[var(--muted)]">{product.unit}</p>
+                    <p className="mt-1 text-sm font-bold text-[#202020]">
+                      {formatCurrency(product.price)}
+                    </p>
                   </div>
                   <button
                     type="button"
-                    onClick={() => onCategoryChange(group.category)}
-                    className="rounded-full bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--muted)]"
+                    onClick={() => onAddToCart(product.id)}
+                    className="rounded-lg bg-[#0f9d68] px-3 py-2 text-xs font-semibold text-white"
                   >
-                    View all
+                    Add
                   </button>
                 </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </section>
 
-                <div className="mt-5 space-y-3">
-                  {group.products.map((product) => (
-                    <div
-                      key={`${group.title}-${product.id}`}
-                      className="flex items-center justify-between gap-3 rounded-[22px] border border-white/40 bg-white/72 px-4 py-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-[var(--ink)]">{product.name}</p>
-                        <p className="mt-1 text-sm text-[var(--muted)]">{product.unit}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <p className="text-sm font-semibold text-[var(--ink)]">
-                          {formatCurrency(product.price)}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => onAddToCart(product.id)}
-                          className="rounded-full bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-white"
-                        >
-                          Add
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-
-          <div className="overflow-hidden rounded-[36px] border border-white/50 bg-[linear-gradient(135deg,rgba(221,248,241,0.88),rgba(255,255,255,0.66))] p-6 shadow-[0_20px_45px_rgba(31,70,61,0.08)] backdrop-blur-xl">
-            <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                  Shop faster
-                </p>
-                <h2 className="mt-3 font-[var(--font-display)] text-5xl font-semibold leading-tight text-[var(--ink)]">
-                  Built for quick grocery decisions
-                </h2>
-                <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--muted)]">
-                  Find what is available for your location, add it in a few taps, and keep your weekly order feeling light and easy.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    className="rounded-full bg-[var(--ink)] px-5 py-3 text-sm font-semibold text-white"
-                  >
-                    App Store
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-[var(--line)] bg-white/80 px-5 py-3 text-sm font-semibold text-[var(--ink)]"
-                  >
-                    Google Play
-                  </button>
-                </div>
-              </div>
-
-              <div className="relative min-h-[320px] overflow-hidden rounded-[30px]">
-                <Image
-                  src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80"
-                  alt="Groceries and fresh produce"
-                  fill
-                  sizes="(max-width: 1023px) 100vw, 45vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,28,24,0.1)_0%,rgba(11,28,24,0.42)_100%)]" />
-              </div>
+      <section className="overflow-hidden rounded-[26px] bg-[linear-gradient(135deg,#dff5ec,#ebfff8)] p-6 shadow-[0_10px_28px_rgba(0,0,0,0.05)]">
+        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
+              Shop faster with the app
+            </p>
+            <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#2a2a2a]">
+              Groceries in a faster, simpler flow.
+            </h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-black/58">
+              Save your basket, reorder household staples, and get through weekly shopping in minutes.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <span className="rounded-xl bg-[#1f1f1f] px-4 py-3 text-sm font-semibold text-white">
+                App Store
+              </span>
+              <span className="rounded-xl bg-[#1f1f1f] px-4 py-3 text-sm font-semibold text-white">
+                Google Play
+              </span>
             </div>
           </div>
-        </>
-      ) : null}
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {appShowcase.map((product, index) => (
+              <div
+                key={`app-${product.id}`}
+                className={`rounded-[26px] border border-white/70 bg-white/76 p-4 shadow-[0_18px_34px_rgba(0,0,0,0.06)] backdrop-blur-md ${
+                  index === 1 ? "sm:-translate-y-3" : ""
+                }`}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-[0.12em] text-black/42">
+                    Basket
+                  </span>
+                  <Icon name="cart" className="h-4 w-4 text-[#0f9d68]" />
+                </div>
+                <div
+                  className={`flex h-24 items-center justify-center rounded-[20px] ${product.tint}`}
+                >
+                  <Icon
+                    name={categoryIcon(product.category)}
+                    className="h-10 w-10 text-[#1f1f1f]"
+                  />
+                </div>
+                <p className="mt-4 text-sm font-semibold text-[#2a2a2a]">
+                  {product.name}
+                </p>
+                <p className="mt-1 text-xs text-[var(--muted)]">{product.unit}</p>
+                <p className="mt-3 text-base font-bold text-[#202020]">
+                  {formatCurrency(product.price)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </section>
   );
 }
