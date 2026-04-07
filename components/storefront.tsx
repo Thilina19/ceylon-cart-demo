@@ -128,8 +128,18 @@ export function Storefront() {
   const highlightPills = storefront?.highlightPills ?? [];
   const products = storefront?.products ?? [];
   const zones = storefront?.deliveryZones ?? [];
+  const selectedZoneId = serviceability?.zone?.id ?? null;
+  const selectedZoneName = serviceability?.zone?.name ?? null;
 
-  const visibleProducts = products.filter((product) => {
+  const zoneProducts = selectedZoneId
+    ? products.filter(
+        (product) =>
+          !product.availableZoneIds.length ||
+          product.availableZoneIds.includes(selectedZoneId),
+      )
+    : [];
+
+  const visibleProducts = zoneProducts.filter((product) => {
     const text = deferredQuery.trim().toLowerCase();
     const categoryMatches =
       activeCategory === "all" || product.category === activeCategory;
@@ -468,6 +478,9 @@ export function Storefront() {
       <main className="mx-auto flex max-w-[1440px] flex-col gap-8 px-4 py-6 lg:px-8 lg:py-8">
         <CatalogSection
           activeCategory={activeCategory}
+          categories={categories}
+          locationReady={Boolean(selectedZoneId)}
+          selectedZoneName={selectedZoneName}
           visibleProducts={visibleProducts}
           onAddToCart={addToCart}
           onCategoryChange={setActiveCategory}

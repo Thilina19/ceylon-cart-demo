@@ -62,6 +62,7 @@ export function AdminDashboard({
     text: string;
   } | null>(null);
   const [newProduct, setNewProduct] = useState({
+    availableZoneIds: initialZones.filter((zone) => zone.active).map((zone) => zone.id),
     name: "",
     category: categories.find((category) => category.id !== "all")?.id ?? "produce",
     unit: "",
@@ -113,7 +114,7 @@ export function AdminDashboard({
   function updateProductField(
     productId: string,
     field: keyof Product,
-    value: string | number | undefined,
+    value: string | number | string[] | undefined,
   ) {
     setProducts((current) =>
       current.map((product) =>
@@ -170,6 +171,7 @@ export function AdminDashboard({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            availableZoneIds: newProduct.availableZoneIds,
             name: newProduct.name.trim(),
             category: newProduct.category,
             unit: newProduct.unit.trim(),
@@ -196,6 +198,7 @@ export function AdminDashboard({
         setSelectedProductId(payload.product.id);
         setNewProduct((current) => ({
           ...current,
+          availableZoneIds: initialZones.filter((zone) => zone.active).map((zone) => zone.id),
           name: "",
           unit: "",
           price: "",
@@ -487,6 +490,7 @@ export function AdminDashboard({
               productSearch={productSearch}
               products={filteredProducts}
               selectedProduct={selectedProduct}
+              zones={zones}
             />
           ) : null}
 

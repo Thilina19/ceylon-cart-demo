@@ -1,9 +1,10 @@
 "use client";
 
-import type { Category, Product } from "@/lib/store-data";
+import type { Category, DeliveryZone, Product } from "@/lib/store-data";
 import { Field, Panel, parseNumberInput } from "@/components/admin/admin-ui";
 
 type NewProductState = {
+  availableZoneIds: string[];
   name: string;
   category: string;
   unit: string;
@@ -30,24 +31,29 @@ export function AdminProducts({
   productSearch,
   products,
   selectedProduct,
+  zones,
 }: {
   categories: Category[];
   isPending: boolean;
   newProduct: NewProductState;
   onCreateProduct: () => void;
   onDeleteProduct: (productId: string) => void;
-  onNewProductChange: (field: keyof NewProductState, value: string) => void;
+  onNewProductChange: (
+    field: keyof NewProductState,
+    value: string | string[],
+  ) => void;
   onProductSearchChange: (value: string) => void;
   onSaveSelectedProduct: (product: Product) => void;
   onProductSelect: (productId: string) => void;
   onProductUpdate: (
     productId: string,
     field: keyof Product,
-    value: string | number | undefined,
+    value: string | number | string[] | undefined,
   ) => void;
   productSearch: string;
   products: Product[];
   selectedProduct: Product | null;
+  zones: DeliveryZone[];
 }) {
   const sellableCategories = categories.filter((category) => category.id !== "all");
 
@@ -225,6 +231,41 @@ export function AdminProducts({
                   onProductUpdate(selectedProduct.id, "tint", value)
                 }
               />
+              <div className="md:col-span-2 xl:col-span-3">
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                  Available in locations
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {zones.map((zone) => {
+                    const checked = selectedProduct.availableZoneIds.includes(zone.id);
+
+                    return (
+                      <button
+                        key={zone.id}
+                        type="button"
+                        onClick={() =>
+                          onProductUpdate(
+                            selectedProduct.id,
+                            "availableZoneIds",
+                            checked
+                              ? selectedProduct.availableZoneIds.filter(
+                                  (candidate) => candidate !== zone.id,
+                                )
+                              : [...selectedProduct.availableZoneIds, zone.id],
+                          )
+                        }
+                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          checked
+                            ? "bg-[var(--ink)] text-white"
+                            : "bg-[var(--surface-strong)] text-[var(--muted)]"
+                        }`}
+                      >
+                        {zone.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-[var(--muted)]">
@@ -312,6 +353,40 @@ export function AdminProducts({
               value={newProduct.tint}
               onChange={(value) => onNewProductChange("tint", value)}
             />
+            <div className="md:col-span-2 xl:col-span-3">
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Available in locations
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {zones.map((zone) => {
+                  const checked = newProduct.availableZoneIds.includes(zone.id);
+
+                  return (
+                    <button
+                      key={zone.id}
+                      type="button"
+                      onClick={() =>
+                        onNewProductChange(
+                          "availableZoneIds",
+                          checked
+                            ? newProduct.availableZoneIds.filter(
+                                (candidate) => candidate !== zone.id,
+                              )
+                            : [...newProduct.availableZoneIds, zone.id],
+                        )
+                      }
+                      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                        checked
+                          ? "bg-[var(--ink)] text-white"
+                          : "bg-[var(--surface-strong)] text-[var(--muted)]"
+                      }`}
+                    >
+                      {zone.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </Panel>
       </div>

@@ -36,6 +36,7 @@ export type Product = {
   id: string;
   name: string;
   category: string;
+  availableZoneIds: string[];
   unit: string;
   price: number;
   wasPrice?: number;
@@ -172,20 +173,20 @@ export const highlightPillsSeed = [
 ];
 
 export const productsSeed: Product[] = [
-  { id: "banana-embul", name: "Embul Banana Bunch", category: "produce", unit: "700 g", price: 490, wasPrice: 620, badge: "Fresh today", origin: "Gampaha", rating: 4.8, eta: "35-45 min", tint: "bg-[#fff0d6]" },
-  { id: "beans-french", name: "French Beans Premium", category: "produce", unit: "500 g", price: 540, badge: "Best seller", origin: "Nuwara Eliya", rating: 4.7, eta: "40 min", tint: "bg-[#dff6e9]" },
-  { id: "kithul-jaggery", name: "Kithul Jaggery Block", category: "pantry", unit: "350 g", price: 860, wasPrice: 980, badge: "Sri Lankan pick", origin: "Kurunegala", rating: 4.9, eta: "45 min", tint: "bg-[#f7e3d0]" },
-  { id: "coconut-milk", name: "Coconut Milk Classic", category: "pantry", unit: "400 ml", price: 320, badge: "Pantry hero", origin: "Colombo", rating: 4.6, eta: "35 min", tint: "bg-[#fbf0db]" },
-  { id: "fresh-milk", name: "Fresh Cow Milk", category: "dairy", unit: "1 L", price: 690, badge: "Chilled", origin: "Hatton", rating: 4.5, eta: "30 min", tint: "bg-[#e8f1ff]" },
-  { id: "country-eggs", name: "Country Eggs Pack", category: "dairy", unit: "10 pcs", price: 770, wasPrice: 860, badge: "Farm select", origin: "Kurunegala", rating: 4.8, eta: "35 min", tint: "bg-[#fff7d9]" },
-  { id: "whole-bread", name: "Whole Wheat Sandwich Loaf", category: "bakery", unit: "450 g", price: 380, badge: "Baked today", origin: "Colombo 05", rating: 4.4, eta: "25 min", tint: "bg-[#f8e6d5]" },
-  { id: "curd-kitul", name: "Buffalo Curd with Kithul", category: "dairy", unit: "500 ml", price: 960, badge: "Dessert favorite", origin: "Hambantota", rating: 4.9, eta: "45 min", tint: "bg-[#f7ecff]" },
-  { id: "seer-fish", name: "Seer Fish Steaks", category: "seafood", unit: "500 g", price: 1890, wasPrice: 2120, badge: "Fresh catch", origin: "Negombo", rating: 4.7, eta: "50 min", tint: "bg-[#ddf4ff]" },
-  { id: "chicken-breast", name: "Chicken Breast Fillet", category: "seafood", unit: "600 g", price: 1450, badge: "Lean protein", origin: "Wattala", rating: 4.6, eta: "45 min", tint: "bg-[#ffe6de]" },
-  { id: "ceylon-tea", name: "Single Estate Ceylon Tea", category: "beverages", unit: "100 bags", price: 1290, badge: "Premium brew", origin: "Dimbula", rating: 4.9, eta: "35 min", tint: "bg-[#e7f5dc]" },
-  { id: "king-coconut", name: "King Coconut Juice", category: "beverages", unit: "1 bottle", price: 240, badge: "Hydration", origin: "Kalutara", rating: 4.5, eta: "30 min", tint: "bg-[#fff0b8]" },
-  { id: "dishwash-refill", name: "Dishwash Refill Pouch", category: "home", unit: "500 ml", price: 430, badge: "Weekly refill", origin: "Colombo", rating: 4.3, eta: "40 min", tint: "bg-[#d7f4ff]" },
-  { id: "laundry-liquid", name: "Laundry Liquid Clean Burst", category: "home", unit: "1.8 L", price: 1780, wasPrice: 1960, badge: "Value buy", origin: "Ja-Ela", rating: 4.4, eta: "50 min", tint: "bg-[#ebe7ff]" },
+  { id: "banana-embul", name: "Embul Banana Bunch", category: "produce", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla"], unit: "700 g", price: 490, wasPrice: 620, badge: "Fresh today", origin: "Gampaha", rating: 4.8, eta: "35-45 min", tint: "bg-[#fff0d6]" },
+  { id: "beans-french", name: "French Beans Premium", category: "produce", availableZoneIds: ["colombo-03", "nugegoda", "battaramulla", "wattala"], unit: "500 g", price: 540, badge: "Best seller", origin: "Nuwara Eliya", rating: 4.7, eta: "40 min", tint: "bg-[#dff6e9]" },
+  { id: "kithul-jaggery", name: "Kithul Jaggery Block", category: "pantry", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala", "moratuwa"], unit: "350 g", price: 860, wasPrice: 980, badge: "Sri Lankan pick", origin: "Kurunegala", rating: 4.9, eta: "45 min", tint: "bg-[#f7e3d0]" },
+  { id: "coconut-milk", name: "Coconut Milk Classic", category: "pantry", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala", "moratuwa"], unit: "400 ml", price: 320, badge: "Pantry hero", origin: "Colombo", rating: 4.6, eta: "35 min", tint: "bg-[#fbf0db]" },
+  { id: "fresh-milk", name: "Fresh Cow Milk", category: "dairy", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla"], unit: "1 L", price: 690, badge: "Chilled", origin: "Hatton", rating: 4.5, eta: "30 min", tint: "bg-[#e8f1ff]" },
+  { id: "country-eggs", name: "Country Eggs Pack", category: "dairy", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "moratuwa"], unit: "10 pcs", price: 770, wasPrice: 860, badge: "Farm select", origin: "Kurunegala", rating: 4.8, eta: "35 min", tint: "bg-[#fff7d9]" },
+  { id: "whole-bread", name: "Whole Wheat Sandwich Loaf", category: "bakery", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala"], unit: "450 g", price: 380, badge: "Baked today", origin: "Colombo 05", rating: 4.4, eta: "25 min", tint: "bg-[#f8e6d5]" },
+  { id: "curd-kitul", name: "Buffalo Curd with Kithul", category: "dairy", availableZoneIds: ["colombo-03", "dehiwala", "moratuwa"], unit: "500 ml", price: 960, badge: "Dessert favorite", origin: "Hambantota", rating: 4.9, eta: "45 min", tint: "bg-[#f7ecff]" },
+  { id: "seer-fish", name: "Seer Fish Steaks", category: "seafood", availableZoneIds: ["colombo-03", "dehiwala", "wattala"], unit: "500 g", price: 1890, wasPrice: 2120, badge: "Fresh catch", origin: "Negombo", rating: 4.7, eta: "50 min", tint: "bg-[#ddf4ff]" },
+  { id: "chicken-breast", name: "Chicken Breast Fillet", category: "seafood", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala"], unit: "600 g", price: 1450, badge: "Lean protein", origin: "Wattala", rating: 4.6, eta: "45 min", tint: "bg-[#ffe6de]" },
+  { id: "ceylon-tea", name: "Single Estate Ceylon Tea", category: "beverages", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala", "moratuwa"], unit: "100 bags", price: 1290, badge: "Premium brew", origin: "Dimbula", rating: 4.9, eta: "35 min", tint: "bg-[#e7f5dc]" },
+  { id: "king-coconut", name: "King Coconut Juice", category: "beverages", availableZoneIds: ["colombo-03", "dehiwala", "moratuwa"], unit: "1 bottle", price: 240, badge: "Hydration", origin: "Kalutara", rating: 4.5, eta: "30 min", tint: "bg-[#fff0b8]" },
+  { id: "dishwash-refill", name: "Dishwash Refill Pouch", category: "home", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala", "moratuwa"], unit: "500 ml", price: 430, badge: "Weekly refill", origin: "Colombo", rating: 4.3, eta: "40 min", tint: "bg-[#d7f4ff]" },
+  { id: "laundry-liquid", name: "Laundry Liquid Clean Burst", category: "home", availableZoneIds: ["colombo-03", "dehiwala", "nugegoda", "battaramulla", "wattala"], unit: "1.8 L", price: 1780, wasPrice: 1960, badge: "Value buy", origin: "Ja-Ela", rating: 4.4, eta: "50 min", tint: "bg-[#ebe7ff]" },
 ];
 
 export const deliveryZonesSeed: DeliveryZone[] = [

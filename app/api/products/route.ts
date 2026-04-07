@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     name?: string;
     category?: string;
+    availableZoneIds?: string[];
     unit?: string;
     price?: number;
     wasPrice?: number;
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
   const product = await createProduct({
     name: body.name,
     category: body.category,
+    availableZoneIds: body.availableZoneIds ?? [],
     unit: body.unit,
     price: body.price,
     wasPrice: body.wasPrice,

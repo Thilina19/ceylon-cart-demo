@@ -132,6 +132,7 @@ export async function createProduct(
   return withWriteLock(async (db) => {
     const newProduct: Product = {
       ...product,
+      availableZoneIds: product.availableZoneIds ?? [],
       id: product.id ?? randomUUID(),
     };
 
@@ -273,6 +274,14 @@ export async function createOrder(input: {
 
         if (!product) {
           throw new Error(`Product ${item.productId} was not found.`);
+        }
+
+        if (input.zoneId && product.availableZoneIds.length) {
+          const isAvailableInZone = product.availableZoneIds.includes(input.zoneId);
+
+          if (!isAvailableInZone) {
+            throw new Error(`${product.name} is not available in the selected area.`);
+          }
         }
 
         return {
